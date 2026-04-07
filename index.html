@@ -136,6 +136,19 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);ba
 .quiz-opt.correct{border-color:#66BB6A;background:rgba(46,125,50,.2);color:#A5D6A7}
 .quiz-opt.wrong{border-color:#FF6B4A;background:rgba(139,37,0,.2);color:#FF8A65}
 
+/* QR Scanner overlay */
+.qr-overlay{position:fixed;inset:0;z-index:250;background:rgba(10,15,30,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .3s}
+.qr-overlay h3{color:var(--gold);font-family:var(--font-heading);font-size:15px;margin-bottom:12px}
+.qr-overlay p{color:var(--sand);font-size:11px;margin-bottom:16px;text-align:center;padding:0 20px;line-height:1.5}
+.qr-video-wrap{width:280px;height:280px;border-radius:16px;overflow:hidden;border:2px solid var(--gold-dark);position:relative;background:#000}
+.qr-video-wrap video{width:100%;height:100%;object-fit:cover}
+.qr-video-wrap .scan-line{position:absolute;left:10%;right:10%;height:2px;background:var(--gold);top:0;animation:scanMove 2s ease-in-out infinite;box-shadow:0 0 12px var(--gold)}
+@keyframes scanMove{0%,100%{top:10%}50%{top:90%}}
+.qr-overlay .qr-close{margin-top:16px;background:none;border:1px solid var(--gold-dark);color:var(--gold-light);padding:10px 24px;border-radius:20px;cursor:pointer;font-size:13px;font-family:var(--font-body)}
+.qr-overlay .qr-status{color:var(--gold);font-size:12px;margin-top:10px;min-height:20px}
+.qr-scan-btn{background:linear-gradient(135deg,rgba(212,168,67,.2),rgba(212,168,67,.08));border:2px solid var(--gold);color:var(--gold-light);padding:12px 20px;border-radius:20px;font-size:13px;cursor:pointer;margin:10px auto;display:block;font-family:var(--font-body);transition:all .3s}
+.qr-scan-btn:hover{background:rgba(212,168,67,.3);box-shadow:0 4px 16px rgba(212,168,67,.3)}
+
 @supports(padding-bottom:env(safe-area-inset-bottom)){.inp{padding-bottom:calc(10px + env(safe-area-inset-bottom))}}
 </style>
 </head>
@@ -459,6 +472,7 @@ async function hub(){
     {label:`📜 系展 (${cnt('exhibit')}/4)`,action:'cat',cat:'exhibit',cls:'st'},
     {label:`📍 打卡 (${cnt('checkin')}/4)`,action:'cat',cat:'checkin',cls:'st'},
     {label:`💀 魔王關 (${cnt('bonus')}/1)`,action:'cat',cat:'bonus',cls:'st'},
+    {label:'📷 掃描打卡',action:'scan'},
     {label:'📊 進度',action:'progress'}
   ];
   if(t)b.push({label:'🏆 兌換獎勵',action:'redeem'});
@@ -469,7 +483,124 @@ async function hub(){
 async function showCat(cat){
   S.phase="stationSelect";
   const sts=STATIONS.filter(s=>s.cat===cat);
-  btns([...sts.map(s=>({label:`${S.completed[s.id]?'✓ ':''}${s.name}`,action:'station',sid:s.id,cls:`st ${S.completed[s.id]?'done':''}`,disabled:!!S.completed[s.id]})),{label:'← 返回',action:'hub'}]);
+  const stBtns=sts.map(s=>({label:`${S.completed[s.id]?'✓ ':''}${s.name}`,action:'station',sid:s.id,cls:`st ${S.completed[s.id]?'done':''}`,disabled:!!S.completed[s.id]}));
+  // Add scan button for check-in category
+  if(cat==='checkin'){
+    const scanWrap=document.createElement('div');scanWrap.style.cssText='text-align:center;margin:10px 0;animation:msgIn .4s ease';
+    const scanBtn=document.createElement('button');scanBtn.className='qr-scan-btn';scanBtn.textContent='📷 掃描打卡 QR Code';
+    scanBtn.onclick=()=>openQRScanner();
+    scanWrap.appendChild(scanBtn);
+    chat.appendChild(scanWrap);scroll();
+  }
+  btns([...stBtns,{label:'← 返回',action:'hub'}]);
+}
+
+/* ============================================================
+   QR SCANNER — 遊戲內建 QR Code 掃描器
+   ============================================================ */
+// QR code values stored in QR codes at physical locations
+const QR_CODES = {
+  'SIGNAL-CK1':'ck1','SIGNAL-CK2':'ck2','SIGNAL-CK3':'ck3','SIGNAL-CK4':'ck4',
+  // Also support URL-based QR codes
+};
+
+let qrStream=null;
+let qrAnimFrame=null;
+
+function openQRScanner(){
+  const overlay=document.createElement('div');overlay.className='qr-overlay';overlay.id='qrOverlay';
+  overlay.innerHTML=`
+    <h3>📷 掃描打卡 QR Code</h3>
+    <p>將相機對準打卡點的 QR Code</p>
+    <div class="qr-video-wrap">
+      <video id="qrVideo" autoplay playsinline></video>
+      <div class="scan-line"></div>
+    </div>
+    <div class="qr-status" id="qrStatus">正在開啟相機⋯⋯</div>
+    <button class="qr-close" onclick="closeQRScanner()">取消</button>`;
+  document.body.appendChild(overlay);
+  startCamera();
+}
+
+async function startCamera(){
+  try{
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const video=$('qrVideo');
+    video.srcObject=qrStream;
+    await video.play();
+    $('qrStatus').textContent='掃描中⋯⋯';
+    scanQR(video);
+  }catch(e){
+    $('qrStatus').textContent='無法開啟相機。請手動輸入打卡密碼。';
+    console.log('Camera error:',e);
+  }
+}
+
+function scanQR(video){
+  // Try native BarcodeDetector first (Chrome Android, Safari iOS 15.4+)
+  if('BarcodeDetector' in window){
+    const detector=new BarcodeDetector({formats:['qr_code']});
+    const scan=async()=>{
+      try{
+        const codes=await detector.detect(video);
+        if(codes.length>0){
+          handleQRResult(codes[0].rawValue);return;
+        }
+      }catch(e){}
+      qrAnimFrame=requestAnimationFrame(scan);
+    };
+    scan();
+  } else {
+    // Fallback: use canvas-based detection with simple pattern match
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    const scan=()=>{
+      if(video.readyState===video.HAVE_ENOUGH_DATA){
+        canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+        ctx.drawImage(video,0,0,canvas.width,canvas.height);
+        // For browsers without BarcodeDetector, show manual input option
+        $('qrStatus').textContent='你的瀏覽器不支援自動掃描。請直接輸入打卡密碼。';
+        return;
+      }
+      qrAnimFrame=requestAnimationFrame(scan);
+    };
+    scan();
+  }
+}
+
+function handleQRResult(value){
+  closeQRScanner();
+  // Check if it's a direct code like "SIGNAL-CK1"
+  let ckId=QR_CODES[value.trim().toUpperCase()];
+  // Check if it's a URL with ?checkin= parameter
+  if(!ckId){
+    try{
+      const url=new URL(value);
+      ckId=url.searchParams.get('checkin');
+    }catch(e){
+      // Not a URL, try as raw text
+      ckId=QR_CODES[value.trim()];
+    }
+  }
+  if(ckId){
+    const st=STATIONS.find(s=>s.id===ckId);
+    if(st&&!S.completed[ckId]){
+      msg('player','📷 掃描 QR Code');
+      autoCheckin(ckId);
+    } else if(st&&S.completed[ckId]){
+      say('isis','這個打卡點你已經完成了，祭司。前往其他地點吧。',400).then(()=>hub());
+    } else {
+      say('isis','無法辨識此 QR Code⋯⋯確認你掃描的是打卡點的 QR Code。',400).then(()=>hub());
+    }
+  } else {
+    say('isis','這不是有效的打卡 QR Code。請對準打卡點的 QR Code 重新掃描。',400).then(()=>hub());
+  }
+}
+
+function closeQRScanner(){
+  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}
+  if(qrAnimFrame){cancelAnimationFrame(qrAnimFrame);qrAnimFrame=null}
+  const o=$('qrOverlay');if(o)o.remove();
 }
 
 async function startSt(sid){
@@ -731,6 +862,7 @@ async function btnClick(b){
     case 'accept':msg('player','我接受。');await say('isis','很好⋯⋯我在你身上看到了不該存在於凡人眼中的東西。',500);askName();break;
     case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展4站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'}]);break;
     case 'cat':msg('player',{lab:'前往實驗室',exhibit:'前往系展',checkin:'前往打卡點',bonus:'挑戰魔王關'}[b.cat]);showCat(b.cat);break;
+    case 'scan':msg('player','掃描打卡 QR Code');openQRScanner();break;
     case 'station':msg('player',`前往 ${STATIONS.find(s=>s.id===b.sid).name}`);startSt(b.sid);break;
     case 'hub':hub();break;
     case 'progress':msg('player','查看進度');showProgress();break;
