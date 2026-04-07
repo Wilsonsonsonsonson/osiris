@@ -294,20 +294,47 @@ const SURVEY = [
    STATE
    ============================================================ */
 const S = {
-  name:"",completed:{},cur:null,phase:"welcome",
+  name:"",pin:"",completed:{},cur:null,phase:"welcome",
   sethDone:{},surveyStep:0,surveyAns:{},
   redeemed:false,puzzleUnlocked:false,uid:""
 };
 
-function save(){try{localStorage.setItem('osiris_v3',JSON.stringify(S))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem('osiris_v3'));if(d){Object.assign(S,d);return true}}catch(e){}return false}
+// Local save (fast, but may be lost in LINE/IG webview)
+function save(){
+  try{localStorage.setItem('osiris_v3',JSON.stringify(S))}catch(e){}
+  cloudSave(); // Also save to cloud
+}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem('osiris_v3'));if(d&&d.name){Object.assign(S,d);return true}}catch(e){}return false}
 
 /* ============================================================
-   GOOGLE SHEETS
+   GOOGLE SHEETS + CLOUD SAVE/LOAD
    ============================================================ */
 function sheet(action,data){
   if(!SHEETS_URL)return;
   try{fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,player:S.name,uid:S.uid,ts:new Date().toISOString(),...data})})}catch(e){}
+}
+
+// Cloud save — sends current state to Google Sheet
+let _saveTimer=null;
+function cloudSave(){
+  if(!SHEETS_URL||!S.name||!S.pin)return;
+  // Debounce: only save once per 2 seconds
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>{
+    const saveData={completed:S.completed,sethDone:S.sethDone,redeemed:S.redeemed,puzzleUnlocked:S.puzzleUnlocked,uid:S.uid,surveyAns:S.surveyAns};
+    fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',player:S.name,pin:S.pin,saveData})});
+  },2000);
+}
+
+// Cloud load — reads state from Google Sheet (returns promise)
+function cloudLoad(name,pin){
+  if(!SHEETS_URL)return Promise.resolve(null);
+  const url=`${SHEETS_URL}?action=load&name=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`;
+  return fetch(url).then(r=>r.json()).then(d=>{
+    if(d.status==='ok'&&d.data)return d.data;
+    if(d.status==='not_found')return 'not_found';
+    return null;
+  }).catch(e=>{console.log('Cloud load error:',e);return null});
 }
 
 /* ============================================================
@@ -445,7 +472,8 @@ async function autoCheckin(ckId){
 async function startGame(){
   checkQRParam();
   renderTiers();
-  if(load()&&S.name&&total()>0){
+  // Try local restore first
+  if(loadLocal()&&S.name&&S.pin&&total()>0){
     renderTiers();
     await say('isis',`祭司 ${S.name}，你回來了。結界仍在，碎片仍在等待。\n\n已收集 ${total()} 塊碎片。繼續你的任務。`,800);
     if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){await autoCheckin(window._pendingCheckin);return}
@@ -455,12 +483,61 @@ async function startGame(){
   await say('isis','——你不該在這裡。\n\n你踏入的這片土地被古老咒術封鎖了三千年。空氣變得厚重，光線扭曲，時間開始以不同速度流動。\n\n你穿越了一道結界。',1200);
   await say('isis','我是伊西斯。魔法的主人，王座的守護者。\n\n我的丈夫歐西里斯被他的弟弟賽特碎屍十四塊，碎片散落各處。三千年來，我的神力無法直接觸碰碎片——結界太強。\n\n然後你闖進來了。凡人的手不受結界限制。命運把你送到我面前。',1200);
   await say('isis','你有兩個選擇：\n\n轉身離開——但結界已標記了你。\n\n或成為我的祭司。收集得越多，賽特越警覺。\n\n所以——快。準確。不要猶豫。\n\n你接受這個命運嗎？',800);
-  btns([{label:'我接受。',action:'accept'},{label:'⋯⋯這是什麼？',action:'explain'}]);
+  btns([{label:'我接受。',action:'accept'},{label:'⋯⋯這是什麼？',action:'explain'},{label:'🔄 恢復進度',action:'restore'}]);
 }
 
 async function askName(){
   S.phase="naming";
   await say('isis','很好。告訴我，你叫什麼名字？\n\n（輸入你的名字或暱稱）',500);
+}
+
+async function askPin(){
+  S.phase="setpin";
+  await say('isis','最後一件事——設定一個 4 位數密碼。這是你的祭司印記，如果你離開結界後想回來，憑名字和密碼就能恢復進度。\n\n（輸入 4 位數字，例如 1234）',500);
+}
+
+async function startRestore(){
+  S.phase="restore_name";
+  await say('isis','你說你曾經來過⋯⋯告訴我你的名字，我在結界的記錄中搜尋。\n\n（輸入你之前使用的名字）',500);
+}
+
+async function askRestorePin(){
+  S.phase="restore_pin";
+  await say('isis','找到了一些痕跡⋯⋯輸入你的 4 位數祭司印記（密碼）來驗證身份。',500);
+}
+
+async function doRestore(){
+  await say('isis','正在從結界記錄中恢復你的進度⋯⋯',400);
+  try{
+    const result = await cloudLoad(S.name, S.pin);
+    if(result === 'not_found'){
+      await say('isis','結界中找不到你的記錄⋯⋯名字或密碼可能不正確。\n\n請重新嘗試，或開始新的旅程。',600);
+      S.name="";S.pin="";
+      btns([{label:'🔄 重新恢復',action:'restore'},{label:'開始新旅程',action:'accept'}]);
+      return;
+    }
+    if(result && typeof result === 'object'){
+      // Restore state from cloud
+      S.completed = result.completed || {};
+      S.sethDone = result.sethDone || {};
+      S.redeemed = result.redeemed || false;
+      S.puzzleUnlocked = result.puzzleUnlocked || false;
+      S.uid = result.uid || S.uid;
+      S.surveyAns = result.surveyAns || {};
+      save();
+      renderTiers();
+      await say('isis',`祭司 ${S.name}——你回來了。我在結界中保留了你的記錄。\n\n已恢復 ${total()} 塊碎片的進度。繼續你的任務。`,800);
+      if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){await autoCheckin(window._pendingCheckin);return}
+      hub();
+      return;
+    }
+    // Cloud load failed (network error etc)
+    await say('isis','結界的通訊出了問題⋯⋯無法讀取雲端記錄。請檢查網路連線後重試。',600);
+    btns([{label:'🔄 重試',action:'restore'},{label:'開始新旅程',action:'accept'}]);
+  }catch(e){
+    await say('isis','結界的通訊出了問題⋯⋯請稍後重試。',600);
+    btns([{label:'🔄 重試',action:'restore'},{label:'開始新旅程',action:'accept'}]);
+  }
 }
 
 async function hub(){
@@ -498,103 +575,60 @@ async function showCat(cat){
 /* ============================================================
    QR SCANNER — 遊戲內建 QR Code 掃描器
    ============================================================ */
-// QR code values stored in QR codes at physical locations
-const QR_CODES = {
-  'SIGNAL-CK1':'ck1','SIGNAL-CK2':'ck2','SIGNAL-CK3':'ck3','SIGNAL-CK4':'ck4',
-  // Also support URL-based QR codes
-};
+const QR_CODES={'SIGNAL-CK1':'ck1','SIGNAL-CK2':'ck2','SIGNAL-CK3':'ck3','SIGNAL-CK4':'ck4'};
+let qrStream=null,qrAnimFrame=null,jsQRLoaded=false;
 
-let qrStream=null;
-let qrAnimFrame=null;
+function loadJsQR(){return new Promise((res,rej)=>{if(jsQRLoaded){res();return}const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';s.onload=()=>{jsQRLoaded=true;res()};s.onerror=()=>rej(new Error('load failed'));document.head.appendChild(s)})}
 
 function openQRScanner(){
   const overlay=document.createElement('div');overlay.className='qr-overlay';overlay.id='qrOverlay';
-  overlay.innerHTML=`
-    <h3>📷 掃描打卡 QR Code</h3>
-    <p>將相機對準打卡點的 QR Code</p>
-    <div class="qr-video-wrap">
-      <video id="qrVideo" autoplay playsinline></video>
-      <div class="scan-line"></div>
-    </div>
-    <div class="qr-status" id="qrStatus">正在開啟相機⋯⋯</div>
+  overlay.innerHTML=`<h3>📷 掃描打卡 QR Code</h3><p>將相機對準打卡點的 QR Code</p>
+    <div class="qr-video-wrap"><video id="qrVideo" autoplay playsinline muted></video><canvas id="qrCanvas" style="display:none"></canvas><div class="scan-line"></div></div>
+    <div class="qr-status" id="qrStatus">正在載入掃描器⋯⋯</div>
+    <div style="margin-top:12px;text-align:center"><p style="color:var(--sand);font-size:11px;margin-bottom:8px">掃描有問題？手動輸入打卡密碼：</p>
+    <div style="display:flex;gap:8px;justify-content:center;align-items:center"><input type="text" id="manualQRInput" placeholder="例如 SIGNAL-CK1" style="padding:8px 12px;border-radius:12px;border:1px solid var(--gold-dark);background:rgba(15,35,64,.6);color:var(--papyrus);font-size:13px;width:180px;outline:none;font-family:var(--font-body)">
+    <button onclick="submitManualQR()" style="padding:8px 14px;border-radius:12px;border:1px solid var(--gold-dark);background:rgba(212,168,67,.15);color:var(--gold-light);cursor:pointer;font-size:12px">確認</button></div></div>
     <button class="qr-close" onclick="closeQRScanner()">取消</button>`;
   document.body.appendChild(overlay);
-  startCamera();
+  setTimeout(()=>{const mi=$('manualQRInput');if(mi)mi.addEventListener('keydown',e=>{if(e.key==='Enter')submitManualQR()})},100);
+  initScanner();
 }
 
-async function startCamera(){
+async function initScanner(){
   try{
-    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-    const video=$('qrVideo');
-    video.srcObject=qrStream;
-    await video.play();
-    $('qrStatus').textContent='掃描中⋯⋯';
-    scanQR(video);
-  }catch(e){
-    $('qrStatus').textContent='無法開啟相機。請手動輸入打卡密碼。';
-    console.log('Camera error:',e);
-  }
-}
-
-function scanQR(video){
-  // Try native BarcodeDetector first (Chrome Android, Safari iOS 15.4+)
-  if('BarcodeDetector' in window){
-    const detector=new BarcodeDetector({formats:['qr_code']});
-    const scan=async()=>{
-      try{
-        const codes=await detector.detect(video);
-        if(codes.length>0){
-          handleQRResult(codes[0].rawValue);return;
-        }
-      }catch(e){}
-      qrAnimFrame=requestAnimationFrame(scan);
-    };
-    scan();
-  } else {
-    // Fallback: use canvas-based detection with simple pattern match
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
+    await loadJsQR();$('qrStatus').textContent='正在開啟相機⋯⋯';
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}});
+    const video=$('qrVideo');video.srcObject=qrStream;await video.play();
+    $('qrStatus').textContent='掃描中⋯⋯對準 QR Code';
+    const canvas=$('qrCanvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
     const scan=()=>{
+      if(!qrStream)return;
       if(video.readyState===video.HAVE_ENOUGH_DATA){
         canvas.width=video.videoWidth;canvas.height=video.videoHeight;
         ctx.drawImage(video,0,0,canvas.width,canvas.height);
-        // For browsers without BarcodeDetector, show manual input option
-        $('qrStatus').textContent='你的瀏覽器不支援自動掃描。請直接輸入打卡密碼。';
-        return;
+        const code=jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height,{inversionAttempts:'dontInvert'});
+        if(code&&code.data){handleQRResult(code.data);return}
       }
       qrAnimFrame=requestAnimationFrame(scan);
-    };
-    scan();
+    };scan();
+  }catch(e){
+    console.log('Scanner error:',e);
+    const s=$('qrStatus');if(s)s.textContent=e.name==='NotAllowedError'?'相機權限被拒絕。請用下方手動輸入。':e.name==='NotFoundError'?'找不到相機。請用下方手動輸入。':'無法開啟掃描器。請用下方手動輸入。';
   }
 }
 
+function submitManualQR(){const mi=$('manualQRInput');if(mi&&mi.value.trim())handleQRResult(mi.value.trim())}
+
 function handleQRResult(value){
   closeQRScanner();
-  // Check if it's a direct code like "SIGNAL-CK1"
   let ckId=QR_CODES[value.trim().toUpperCase()];
-  // Check if it's a URL with ?checkin= parameter
-  if(!ckId){
-    try{
-      const url=new URL(value);
-      ckId=url.searchParams.get('checkin');
-    }catch(e){
-      // Not a URL, try as raw text
-      ckId=QR_CODES[value.trim()];
-    }
-  }
+  if(!ckId){try{ckId=new URL(value).searchParams.get('checkin')}catch(e){}}
   if(ckId){
     const st=STATIONS.find(s=>s.id===ckId);
-    if(st&&!S.completed[ckId]){
-      msg('player','📷 掃描 QR Code');
-      autoCheckin(ckId);
-    } else if(st&&S.completed[ckId]){
-      say('isis','這個打卡點你已經完成了，祭司。前往其他地點吧。',400).then(()=>hub());
-    } else {
-      say('isis','無法辨識此 QR Code⋯⋯確認你掃描的是打卡點的 QR Code。',400).then(()=>hub());
-    }
-  } else {
-    say('isis','這不是有效的打卡 QR Code。請對準打卡點的 QR Code 重新掃描。',400).then(()=>hub());
-  }
+    if(st&&!S.completed[ckId]){msg('player','📷 掃描 QR Code');autoCheckin(ckId)}
+    else if(st&&S.completed[ckId])say('isis','這個打卡點已完成了，祭司。',400).then(()=>hub());
+    else say('isis','無法辨識此 QR Code。',400).then(()=>hub());
+  }else say('isis','這不是有效的打卡密碼。請確認後重試。',400).then(()=>hub());
 }
 
 function closeQRScanner(){
@@ -860,7 +894,8 @@ function startQuiz(){
 async function btnClick(b){
   switch(b.action){
     case 'accept':msg('player','我接受。');await say('isis','很好⋯⋯我在你身上看到了不該存在於凡人眼中的東西。',500);askName();break;
-    case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展4站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'}]);break;
+    case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展4站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'},{label:'🔄 恢復進度',action:'restore'}]);break;
+    case 'restore':msg('player','我之前來過');startRestore();break;
     case 'cat':msg('player',{lab:'前往實驗室',exhibit:'前往系展',checkin:'前往打卡點',bonus:'挑戰魔王關'}[b.cat]);showCat(b.cat);break;
     case 'scan':msg('player','掃描打卡 QR Code');openQRScanner();break;
     case 'station':msg('player',`前往 ${STATIONS.find(s=>s.id===b.sid).name}`);startSt(b.sid);break;
@@ -874,14 +909,35 @@ async function btnClick(b){
 
 function handleSend(){
   const t=inp.value.trim();if(!t)return;inp.value='';msg('player',t);
+  // ── New player: set name ──
   if(S.phase==='naming'){
-    S.name=t;save();renderTiers();
+    S.name=t;renderTiers();
+    askPin();return;
+  }
+  // ── New player: set PIN ──
+  if(S.phase==='setpin'){
+    if(!/^\d{4}$/.test(t)){
+      say('isis','祭司印記必須是 4 位數字。請重新輸入。',400);return;
+    }
+    S.pin=t;save();
     sheet('register',{name:S.name});
-    say('isis',`${t}⋯⋯好。從現在起，你是我的祭司。\n\n輸入「提示」獲得託特的指引。輸入「進度」查看碎片。\n\n出發。`,600).then(()=>{
+    say('isis',`${S.name}⋯⋯好。你的祭司印記已刻入結界。\n\n⚠️ 請記住你的名字和 4 位數密碼（${S.pin}），離開後可用它恢復進度。\n\n輸入「提示」獲得託特的指引。輸入「進度」查看碎片。\n\n出發。`,700).then(()=>{
       if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){autoCheckin(window._pendingCheckin)}else{hub()}
     });return;
   }
+  // ── Restore: enter name ──
+  if(S.phase==='restore_name'){
+    S.name=t;
+    askRestorePin();return;
+  }
+  // ── Restore: enter PIN ──
+  if(S.phase==='restore_pin'){
+    S.pin=t;
+    doRestore();return;
+  }
+  // ── Answering station question ──
   if(S.phase==='answering'&&S.cur){checkAns(t);return}
+  // ── Survey free text ──
   if(S.phase==='survey'){
     const q=SURVEY[S.surveyStep];
     if(q&&(q.free||(!q.opts&&q.type!=='stars'))){
@@ -889,6 +945,7 @@ function handleSend(){
       if(S.surveyStep<SURVEY.length)askSQ();else finishSurvey();return;
     }
   }
+  // ── General commands ──
   const lo=t.toLowerCase();
   if(['進度','progress'].includes(lo))showProgress();
   else if(['幫助','help'].includes(lo))say('isis','點選按鈕選擇站點 | 「進度」查看狀態 | 回答時「提示」獲助 | 「重置」清除進度',400).then(()=>hub());
