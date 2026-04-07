@@ -149,14 +149,44 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);ba
 .qr-scan-btn{background:linear-gradient(135deg,rgba(212,168,67,.2),rgba(212,168,67,.08));border:2px solid var(--gold);color:var(--gold-light);padding:12px 20px;border-radius:20px;font-size:13px;cursor:pointer;margin:10px auto;display:block;font-family:var(--font-body);transition:all .3s}
 .qr-scan-btn:hover{background:rgba(212,168,67,.3);box-shadow:0 4px 16px rgba(212,168,67,.3)}
 
+/* ── Audio toggle ── */
+.audio-btn{position:absolute;right:12px;top:8px;width:30px;height:30px;border-radius:50%;border:1px solid var(--gold-dark);background:rgba(0,0,0,.3);color:var(--gold-dark);font-size:14px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;z-index:5}
+.audio-btn:hover{border-color:var(--gold);background:rgba(212,168,67,.15)}
+.audio-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.12)}
+
+/* ── Fragment Collection Animation ── */
+.frag-overlay{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden}
+.frag-particle{position:absolute;border-radius:50%;pointer-events:none;will-change:transform,opacity}
+.frag-glyph{position:absolute;left:50%;top:50%;font-size:48px;transform:translate(-50%,-50%) scale(0);opacity:0;filter:drop-shadow(0 0 20px rgba(212,168,67,.8));will-change:transform,opacity;z-index:2}
+.frag-ring{position:absolute;left:50%;top:50%;width:0;height:0;border-radius:50%;border:2px solid var(--gold);transform:translate(-50%,-50%);opacity:0;z-index:1}
+.frag-text{position:absolute;left:50%;bottom:28%;transform:translateX(-50%) translateY(20px);opacity:0;font-family:var(--font-heading);color:var(--gold-light);font-size:15px;letter-spacing:3px;text-shadow:0 0 24px rgba(212,168,67,.6),0 2px 8px rgba(0,0,0,.8);white-space:nowrap;z-index:3}
+.frag-hieroline{position:absolute;left:0;right:0;text-align:center;font-size:10px;letter-spacing:6px;color:var(--gold-dark);opacity:0;z-index:1}
+
+/* ── Osiris Resurrection Animation ── */
+.rez-overlay{position:fixed;inset:0;z-index:190;background:rgba(5,10,20,.98);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.rez-overlay *{pointer-events:none}
+.rez-fragments{position:relative;width:260px;height:320px}
+.rez-frag{position:absolute;font-size:22px;opacity:0;filter:drop-shadow(0 0 12px rgba(212,168,67,.5));will-change:transform,opacity}
+.rez-silhouette{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:200px;opacity:0}
+.rez-silhouette-inner{width:100%;height:100%;background:linear-gradient(180deg,rgba(212,168,67,.05),rgba(212,168,67,.02));border-radius:50% 50% 45% 45% / 60% 60% 40% 40%;border:1px solid rgba(212,168,67,.08);position:relative;overflow:hidden}
+.rez-heartbeat{position:absolute;left:50%;top:40%;width:8px;height:8px;border-radius:50%;background:var(--gold);transform:translate(-50%,-50%) scale(0);opacity:0;box-shadow:0 0 30px var(--gold),0 0 60px rgba(212,168,67,.4)}
+.rez-flash{position:fixed;inset:0;background:radial-gradient(ellipse at center,rgba(212,168,67,.6),rgba(242,214,128,.3) 40%,transparent 70%);opacity:0;z-index:2}
+.rez-text{color:var(--gold-light);font-family:var(--font-display);font-size:20px;letter-spacing:4px;opacity:0;text-shadow:0 0 30px rgba(212,168,67,.5);margin-top:24px;text-align:center;z-index:3}
+.rez-sub{color:var(--papyrus);font-family:var(--font-heading);font-size:12px;letter-spacing:2px;opacity:0;margin-top:8px;text-align:center;z-index:3}
+.rez-ankh{font-size:64px;opacity:0;filter:drop-shadow(0 0 40px rgba(212,168,67,.7));z-index:3;margin-bottom:12px}
+.rez-close{pointer-events:auto!important;margin-top:24px;padding:10px 28px;border-radius:20px;border:1px solid var(--gold-dark);background:rgba(212,168,67,.1);color:var(--gold-light);font-family:var(--font-body);font-size:13px;cursor:pointer;opacity:0;z-index:3;transition:all .3s}
+.rez-close:hover{border-color:var(--gold);background:rgba(212,168,67,.25)}
+.rez-eye{position:absolute;left:50%;top:28%;transform:translate(-50%,-50%);font-size:0;opacity:0;filter:drop-shadow(0 0 20px rgba(212,168,67,.8))}
+
 @supports(padding-bottom:env(safe-area-inset-bottom)){.inp{padding-bottom:calc(10px + env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="header">
+  <div class="header" style="position:relative">
     <h1>𓋹 OSIRIS 𓋹</h1>
     <div class="sub">歐西里斯的復活 — 伊西斯的召喚</div>
+    <button class="audio-btn" id="audioBtn" onclick="SFX.toggle()" title="音效開關">🔇</button>
   </div>
   <div class="tier-track" id="tierTrack"></div>
   <div class="chat-area" id="chatArea"></div>
@@ -176,6 +206,635 @@ const STAFF_PIN = "2026"; // ← 工作人員驗證 PIN（可自訂）
 
 // QR check-in: 在網址後加 ?checkin=ck1 即可自動觸發打卡
 // 例如: https://yourdomain.com/osiris.html?checkin=ck1
+
+/* ============================================================
+   🎵 AUDIO ENGINE v2 — 強化版合成音效
+   多層次、有空間感、角色特色鮮明
+   ============================================================ */
+const SFX=(()=>{
+  let ctx=null,enabled=false,bgmNodes=null,masterGain=null,reverbGain=null,reverbDelay=null;
+  const SCALE=[293.66,311.13,392,440,466.16,587.33,622.25,783.99];
+  const SCALE_LO=[73.42,77.78,98,110,116.54,146.83,155.56,196];
+
+  function init(){
+    if(ctx)return;
+    ctx=new(window.AudioContext||window.webkitAudioContext)();
+    masterGain=ctx.createGain();masterGain.gain.value=0.55;masterGain.connect(ctx.destination);
+    // Reverb bus: feedback delay network simulating temple space
+    reverbGain=ctx.createGain();reverbGain.gain.value=0.25;
+    const d1=ctx.createDelay(1);d1.delayTime.value=0.12;
+    const d2=ctx.createDelay(1);d2.delayTime.value=0.19;
+    const d3=ctx.createDelay(1);d3.delayTime.value=0.31;
+    const fb1=ctx.createGain();fb1.gain.value=0.35;
+    const fb2=ctx.createGain();fb2.gain.value=0.28;
+    const fb3=ctx.createGain();fb3.gain.value=0.22;
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;
+    reverbGain.connect(d1);d1.connect(fb1);fb1.connect(d1);
+    reverbGain.connect(d2);d2.connect(fb2);fb2.connect(d2);
+    reverbGain.connect(d3);d3.connect(fb3);fb3.connect(d3);
+    d1.connect(lp);d2.connect(lp);d3.connect(lp);
+    lp.connect(masterGain);
+  }
+  // Helper: send to both dry + reverb
+  function dryWet(node,dry=1,wet=0.3){
+    const dG=ctx.createGain();dG.gain.value=dry;node.connect(dG);dG.connect(masterGain);
+    if(wet>0){const wG=ctx.createGain();wG.gain.value=wet;node.connect(wG);wG.connect(reverbGain)}
+  }
+
+  function toggle(){
+    init();if(ctx.state==='suspended')ctx.resume();
+    enabled=!enabled;
+    const btn=document.getElementById('audioBtn');
+    if(enabled){btn.textContent='🔊';btn.classList.add('on');startBGM()}
+    else{btn.textContent='🔇';btn.classList.remove('on');stopBGM()}
+  }
+
+  // ════════════════════════════════════════════
+  // BGM: 4-layer Egyptian Ambient
+  // ════════════════════════════════════════════
+  function startBGM(){
+    if(bgmNodes)return;
+    const now=ctx.currentTime;
+    // L1: Deep drone D2+A2 with subtle beating
+    const droneG=ctx.createGain();droneG.gain.value=0.07;droneG.connect(masterGain);
+    const d1=ctx.createOscillator();d1.type='sine';d1.frequency.value=73.42;d1.connect(droneG);d1.start();
+    const d1b=ctx.createOscillator();d1b.type='sine';d1b.frequency.value=73.82;// slight detune for beating
+    const d1bG=ctx.createGain();d1bG.gain.value=0.04;d1b.connect(d1bG);d1bG.connect(droneG);d1b.start();
+    const d2=ctx.createOscillator();d2.type='sine';d2.frequency.value=110;
+    const d2g=ctx.createGain();d2g.gain.value=0.035;d2.connect(d2g);d2g.connect(masterGain);d2.start();
+    // Drone breath: slow volume modulation
+    const breathLFO=ctx.createOscillator();breathLFO.type='sine';breathLFO.frequency.value=0.04;
+    const breathG=ctx.createGain();breathG.gain.value=0.02;
+    breathLFO.connect(breathG);breathG.connect(droneG.gain);breathLFO.start();
+
+    // L2: Desert wind (filtered noise)
+    const nLen=ctx.sampleRate*2,nBuf=ctx.createBuffer(1,nLen,ctx.sampleRate),nD=nBuf.getChannelData(0);
+    for(let i=0;i<nLen;i++)nD[i]=Math.random()*2-1;
+    const noise=ctx.createBufferSource();noise.buffer=nBuf;noise.loop=true;
+    const nF=ctx.createBiquadFilter();nF.type='bandpass';nF.frequency.value=800;nF.Q.value=0.4;
+    const nG=ctx.createGain();nG.gain.value=0.018;
+    noise.connect(nF);nF.connect(nG);nG.connect(masterGain);noise.start();
+    const lfo=ctx.createOscillator();lfo.type='sine';lfo.frequency.value=0.06;
+    const lfoG=ctx.createGain();lfoG.gain.value=500;lfo.connect(lfoG);lfoG.connect(nF.frequency);lfo.start();
+    // Second wind layer: higher, thinner
+    const noise2=ctx.createBufferSource();noise2.buffer=nBuf;noise2.loop=true;
+    const n2F=ctx.createBiquadFilter();n2F.type='bandpass';n2F.frequency.value=2200;n2F.Q.value=0.8;
+    const n2G=ctx.createGain();n2G.gain.value=0.006;
+    noise2.connect(n2F);n2F.connect(n2G);n2G.connect(masterGain);noise2.start();
+
+    // L3: Pentatonic plucked oud notes with reverb
+    let arpI=null;
+    function pluck(){
+      if(!enabled)return;
+      const f=SCALE[Math.floor(Math.random()*SCALE.length)];
+      // Main tone
+      const o=ctx.createOscillator();o.type='triangle';o.frequency.value=f;
+      // Overtone for richness
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*2.01;
+      const e=ctx.createGain();e.gain.setValueAtTime(0.055,ctx.currentTime);
+      e.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+3);
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0.02,ctx.currentTime);
+      e2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+2);
+      const fl=ctx.createBiquadFilter();fl.type='lowpass';
+      fl.frequency.setValueAtTime(f*5,ctx.currentTime);fl.frequency.exponentialRampToValueAtTime(f*0.3,ctx.currentTime+2.5);
+      const mix=ctx.createGain();mix.gain.value=1;
+      o.connect(fl);o2.connect(fl);fl.connect(e);fl.connect(e2);
+      e.connect(mix);e2.connect(mix);
+      dryWet(mix,0.7,0.5);
+      o.start();o.stop(ctx.currentTime+3.5);o2.start();o2.stop(ctx.currentTime+3);
+      // Occasionally play two notes (interval)
+      if(Math.random()>.65){
+        const f2=SCALE[(SCALE.indexOf(f)+2)%SCALE.length];
+        setTimeout(()=>{
+          if(!enabled)return;
+          const oo=ctx.createOscillator();oo.type='triangle';oo.frequency.value=f2;
+          const ee=ctx.createGain();ee.gain.setValueAtTime(0.04,ctx.currentTime);
+          ee.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+2.5);
+          const ff=ctx.createBiquadFilter();ff.type='lowpass';ff.frequency.value=f2*3;
+          oo.connect(ff);ff.connect(ee);dryWet(ee,0.6,0.5);
+          oo.start();oo.stop(ctx.currentTime+3);
+        },200+Math.random()*300);
+      }
+    }
+    arpI=setInterval(()=>{pluck()},2200+Math.random()*2000);setTimeout(pluck,800);
+
+    // L4: Soft rhythmic pulse (tabla-like)
+    let rhythmI=null;
+    function tablaHit(){
+      if(!enabled)return;
+      const types=[
+        {f:100,type:'sine',dur:0.2,vol:0.04},// soft dum
+        {f:250,type:'triangle',dur:0.08,vol:0.025},// light tak
+        {f:180,type:'sine',dur:0.15,vol:0.03}// medium
+      ];
+      const t=types[Math.floor(Math.random()*types.length)];
+      const o=ctx.createOscillator();o.type=t.type;o.frequency.setValueAtTime(t.f,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(t.f*0.3,ctx.currentTime+t.dur);
+      const e=ctx.createGain();e.gain.setValueAtTime(t.vol,ctx.currentTime);
+      e.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t.dur+0.1);
+      const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=400;
+      o.connect(fl);fl.connect(e);dryWet(e,0.8,0.2);
+      o.start();o.stop(ctx.currentTime+t.dur+0.2);
+    }
+    // Rhythmic pattern: irregular but pulsing
+    function rhythmLoop(){
+      if(!enabled)return;
+      tablaHit();
+      if(Math.random()>.5)setTimeout(tablaHit,250);// double hit
+      rhythmI=setTimeout(rhythmLoop,1800+Math.random()*2400);
+    }
+    setTimeout(rhythmLoop,3000);
+
+    bgmNodes={d1,d1b,d2,noise,noise2,lfo,breathLFO,droneG,d1bG,d2g,nG,n2G,lfoG,breathG,arpI,rhythmI};
+  }
+  function stopBGM(){
+    if(!bgmNodes)return;
+    try{
+      bgmNodes.d1.stop();bgmNodes.d1b.stop();bgmNodes.d2.stop();
+      bgmNodes.noise.stop();bgmNodes.noise2.stop();bgmNodes.lfo.stop();bgmNodes.breathLFO.stop();
+      clearInterval(bgmNodes.arpI);clearTimeout(bgmNodes.rhythmI);
+    }catch(e){}
+    bgmNodes=null;
+  }
+
+  // ════════════════════════════════════════════
+  // Character Sounds (multi-layered with reverb)
+  // ════════════════════════════════════════════
+
+  // Isis: crystalline water drops cascade + shimmer
+  function isisChime(){
+    if(!enabled||!ctx)return;
+    const notes=[783.99,622.25,783.99,1046.5,783.99];
+    notes.forEach((f,i)=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*1.002;// chorus
+      const o3=ctx.createOscillator();o3.type='sine';o3.frequency.value=f*2;// octave shimmer
+      const e=ctx.createGain();const t=ctx.currentTime+i*.1;
+      e.gain.setValueAtTime(0,t);
+      e.gain.linearRampToValueAtTime(0.09,t+.015);
+      e.gain.exponentialRampToValueAtTime(0.001,t+1.2);
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0,t);
+      e2.gain.linearRampToValueAtTime(0.06,t+.015);
+      e2.gain.exponentialRampToValueAtTime(0.001,t+1);
+      const e3=ctx.createGain();e3.gain.setValueAtTime(0,t);
+      e3.gain.linearRampToValueAtTime(0.025,t+.01);
+      e3.gain.exponentialRampToValueAtTime(0.001,t+.6);
+      const mix=ctx.createGain();mix.gain.value=1;
+      o.connect(e);o2.connect(e2);o3.connect(e3);
+      e.connect(mix);e2.connect(mix);e3.connect(mix);
+      dryWet(mix,0.6,0.7);// lots of reverb for water feel
+      o.start(t);o.stop(t+1.5);o2.start(t);o2.stop(t+1.3);o3.start(t);o3.stop(t+.8);
+    });
+    // Water splash noise
+    const nb=ctx.createBuffer(1,ctx.sampleRate*.3|0,ctx.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.05));
+    const ns=ctx.createBufferSource();ns.buffer=nb;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=4000;bp.Q.value=0.5;
+    const ng=ctx.createGain();ng.gain.value=0.03;
+    ns.connect(bp);bp.connect(ng);dryWet(ng,0.5,0.8);
+    ns.start();
+  }
+
+  // Seth: menacing sub-bass + distorted rumble + dissonant stab
+  function sethRumble(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    // Sub-bass growl
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=45;
+    o.frequency.linearRampToValueAtTime(60,now+0.5);o.frequency.linearRampToValueAtTime(40,now+1.5);
+    const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=100;
+    const e=ctx.createGain();e.gain.setValueAtTime(0,now);
+    e.gain.linearRampToValueAtTime(0.2,now+.12);
+    e.gain.linearRampToValueAtTime(0.15,now+.6);
+    e.gain.exponentialRampToValueAtTime(0.001,now+2.5);
+    o.connect(fl);fl.connect(e);e.connect(masterGain);o.start();o.stop(now+3);
+    // Distorted crackle
+    const nb=ctx.createBuffer(1,ctx.sampleRate*1.5|0,ctx.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    const ns=ctx.createBufferSource();ns.buffer=nb;
+    const nf=ctx.createBiquadFilter();nf.type='lowpass';nf.frequency.value=250;
+    const ng=ctx.createGain();ng.gain.setValueAtTime(0.05,now);
+    ng.gain.linearRampToValueAtTime(0.08,now+.3);
+    ng.gain.exponentialRampToValueAtTime(0.001,now+2);
+    ns.connect(nf);nf.connect(ng);ng.connect(masterGain);ns.start();ns.stop(now+2.5);
+    // Dissonant stab: tritone
+    const s1=ctx.createOscillator();s1.type='square';s1.frequency.value=82.41;// E2
+    const s2=ctx.createOscillator();s2.type='square';s2.frequency.value=116.54;// Bb2 (tritone)
+    const sf=ctx.createBiquadFilter();sf.type='lowpass';sf.frequency.value=200;
+    const se=ctx.createGain();se.gain.setValueAtTime(0,now+.05);
+    se.gain.linearRampToValueAtTime(0.06,now+.1);
+    se.gain.exponentialRampToValueAtTime(0.001,now+1.5);
+    s1.connect(sf);s2.connect(sf);sf.connect(se);se.connect(masterGain);
+    s1.start(now+.05);s1.stop(now+2);s2.start(now+.05);s2.stop(now+2);
+    if(navigator.vibrate)navigator.vibrate([120,40,250,60,180]);
+  }
+
+  // Anubis: deep ceremonial gong + metallic ring
+  function anubisBell(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    [73.42,110,146.83,220].forEach((f,i)=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*1.498;// inharmonic partial
+      const o3=ctx.createOscillator();o3.type='sine';o3.frequency.value=f*2.002;
+      const e=ctx.createGain();e.gain.setValueAtTime(0.1-i*.015,now);
+      e.gain.exponentialRampToValueAtTime(0.001,now+3.5);
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0.04,now);
+      e2.gain.exponentialRampToValueAtTime(0.001,now+2.5);
+      const e3=ctx.createGain();e3.gain.setValueAtTime(0.025,now);
+      e3.gain.exponentialRampToValueAtTime(0.001,now+2);
+      const mix=ctx.createGain();mix.gain.value=1;
+      o.connect(e);o2.connect(e2);o3.connect(e3);
+      e.connect(mix);e2.connect(mix);e3.connect(mix);dryWet(mix,0.5,0.6);
+      o.start();o.stop(now+4);o2.start();o2.stop(now+3);o3.start();o3.stop(now+2.5);
+    });
+    // Metal strike transient
+    const nb=ctx.createBuffer(1,ctx.sampleRate*.1|0,ctx.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.008));
+    const ns=ctx.createBufferSource();ns.buffer=nb;
+    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=2000;
+    const ng=ctx.createGain();ng.gain.value=0.08;
+    ns.connect(hp);hp.connect(ng);dryWet(ng,0.4,0.8);ns.start();
+  }
+
+  // Thoth: mysterious ascending flute-like melody
+  function thothWhisper(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    const melody=[392,440,523.25,587.33,783.99,587.33];
+    melody.forEach((f,i)=>{
+      const o=ctx.createOscillator();o.type='triangle';o.frequency.value=f;
+      // Breathy noise layer
+      const nb=ctx.createBuffer(1,ctx.sampleRate*.4|0,ctx.sampleRate),nd=nb.getChannelData(0);
+      for(let j=0;j<nd.length;j++)nd[j]=Math.random()*2-1;
+      const ns=ctx.createBufferSource();ns.buffer=nb;
+      const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=8;
+      const t=now+i*.1;
+      const e=ctx.createGain();e.gain.setValueAtTime(0,t);
+      e.gain.linearRampToValueAtTime(0.06,t+.03);
+      e.gain.exponentialRampToValueAtTime(0.001,t+.6);
+      const ne=ctx.createGain();ne.gain.setValueAtTime(0,t);
+      ne.gain.linearRampToValueAtTime(0.02,t+.02);
+      ne.gain.exponentialRampToValueAtTime(0.001,t+.35);
+      const mix=ctx.createGain();mix.gain.value=1;
+      o.connect(e);e.connect(mix);ns.connect(bp);bp.connect(ne);ne.connect(mix);
+      dryWet(mix,0.7,0.6);
+      o.start(t);o.stop(t+.8);ns.start(t);ns.stop(t+.5);
+    });
+  }
+
+  // Osiris: warm major chord bloom with shimmering overtones
+  function osirisChord(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    const chord=[146.83,293.66,369.99,440,587.33];
+    chord.forEach((f,i)=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*1.001;// slow chorus
+      const o3=ctx.createOscillator();o3.type='triangle';o3.frequency.value=f*2;// octave shimmer
+      const e=ctx.createGain();e.gain.setValueAtTime(0,now);
+      e.gain.linearRampToValueAtTime(0.06,now+.4);
+      e.gain.linearRampToValueAtTime(0.045,now+2);
+      e.gain.exponentialRampToValueAtTime(0.001,now+4);
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0,now);
+      e2.gain.linearRampToValueAtTime(0.04,now+.5);
+      e2.gain.exponentialRampToValueAtTime(0.001,now+3.5);
+      const e3=ctx.createGain();e3.gain.setValueAtTime(0,now+.3);
+      e3.gain.linearRampToValueAtTime(0.015,now+.8);
+      e3.gain.exponentialRampToValueAtTime(0.001,now+2.5);
+      const mix=ctx.createGain();mix.gain.value=1;
+      o.connect(e);o2.connect(e2);o3.connect(e3);
+      e.connect(mix);e2.connect(mix);e3.connect(mix);dryWet(mix,0.6,0.5);
+      o.start();o.stop(now+4.5);o2.start();o2.stop(now+4);o3.start();o3.stop(now+3);
+    });
+  }
+
+  // ════════════════════════════════════════════
+  // Game Event Sounds
+  // ════════════════════════════════════════════
+
+  // Fragment: triumphant sparkle cascade + gong hit
+  function fragmentCollect(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    // Ascending sparkles
+    [392,523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*2;
+      const t=now+i*.08;
+      const e=ctx.createGain();e.gain.setValueAtTime(0,t);
+      e.gain.linearRampToValueAtTime(0.09,t+.015);
+      e.gain.exponentialRampToValueAtTime(0.001,t+1.2);
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0,t);
+      e2.gain.linearRampToValueAtTime(0.035,t+.01);
+      e2.gain.exponentialRampToValueAtTime(0.001,t+.6);
+      const mix=ctx.createGain();o.connect(e);o2.connect(e2);e.connect(mix);e2.connect(mix);
+      dryWet(mix,0.5,0.8);
+      o.start(t);o.stop(t+1.5);o2.start(t);o2.stop(t+.8);
+    });
+    // Gong body
+    const g=ctx.createOscillator();g.type='sine';g.frequency.value=196;
+    const ge=ctx.createGain();ge.gain.setValueAtTime(0.08,now+.05);
+    ge.gain.exponentialRampToValueAtTime(0.001,now+3);
+    g.connect(ge);dryWet(ge,0.5,0.7);g.start(now+.05);g.stop(now+3.5);
+  }
+
+  // Wrong: dissonant buzz + error stab
+  function wrongAnswer(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    // Low buzz
+    const o=ctx.createOscillator();o.type='square';o.frequency.value=98;
+    const o2=ctx.createOscillator();o2.type='sawtooth';o2.frequency.value=103;// beating
+    const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=250;
+    const e=ctx.createGain();e.gain.setValueAtTime(0.08,now);
+    e.gain.exponentialRampToValueAtTime(0.001,now+.7);
+    o.connect(fl);o2.connect(fl);fl.connect(e);e.connect(masterGain);
+    o.start();o.stop(now+.8);o2.start();o2.stop(now+.8);
+    // High dissonant stab
+    const s=ctx.createOscillator();s.type='square';s.frequency.value=311.13;
+    const s2=ctx.createOscillator();s2.type='square';s2.frequency.value=329.63;// minor 2nd
+    const sf=ctx.createBiquadFilter();sf.type='lowpass';sf.frequency.value=600;
+    const se=ctx.createGain();se.gain.setValueAtTime(0.04,now);
+    se.gain.exponentialRampToValueAtTime(0.001,now+.3);
+    s.connect(sf);s2.connect(sf);sf.connect(se);se.connect(masterGain);
+    s.start();s.stop(now+.4);s2.start();s2.stop(now+.4);
+    if(navigator.vibrate)navigator.vibrate([100,30,60]);
+  }
+
+  // Tap: stone button press
+  function tap(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    const o=ctx.createOscillator();o.type='sine';o.frequency.value=800;
+    o.frequency.exponentialRampToValueAtTime(400,now+.06);
+    const e=ctx.createGain();e.gain.setValueAtTime(0.06,now);
+    e.gain.exponentialRampToValueAtTime(0.001,now+.1);
+    o.connect(e);dryWet(e,0.8,0.3);o.start();o.stop(now+.15);
+    // Sub thud
+    const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=120;
+    const e2=ctx.createGain();e2.gain.setValueAtTime(0.04,now);
+    e2.gain.exponentialRampToValueAtTime(0.001,now+.08);
+    o2.connect(e2);e2.connect(masterGain);o2.start();o2.stop(now+.12);
+  }
+
+  // Message arrive: soft notification ping
+  function msgPing(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    const o=ctx.createOscillator();o.type='sine';o.frequency.value=880;
+    const e=ctx.createGain();e.gain.setValueAtTime(0,now);
+    e.gain.linearRampToValueAtTime(0.04,now+.01);
+    e.gain.exponentialRampToValueAtTime(0.001,now+.4);
+    o.connect(e);dryWet(e,0.6,0.5);o.start();o.stop(now+.5);
+  }
+
+  // Typing indicator: soft ticking
+  function typeTick(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    for(let i=0;i<3;i++){
+      const o=ctx.createOscillator();o.type='sine';
+      o.frequency.value=500+Math.random()*200;
+      const e=ctx.createGain();const t=now+i*.18;
+      e.gain.setValueAtTime(0.02,t);
+      e.gain.exponentialRampToValueAtTime(0.001,t+.05);
+      o.connect(e);e.connect(masterGain);o.start(t);o.stop(t+.08);
+    }
+  }
+
+  // Heartbeat: deep chest resonance
+  function heartbeat(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    [0,.18].forEach(d=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.setValueAtTime(65,now+d);
+      o.frequency.exponentialRampToValueAtTime(40,now+d+.4);
+      const e=ctx.createGain();e.gain.setValueAtTime(0,now+d);
+      e.gain.linearRampToValueAtTime(0.22,now+d+.03);
+      e.gain.exponentialRampToValueAtTime(0.001,now+d+.6);
+      o.connect(e);e.connect(masterGain);o.start(now+d);o.stop(now+d+.8);
+      // Chest resonance body
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=110;
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0,now+d+.02);
+      e2.gain.linearRampToValueAtTime(0.08,now+d+.05);
+      e2.gain.exponentialRampToValueAtTime(0.001,now+d+.5);
+      o2.connect(e2);dryWet(e2,0.8,0.4);o2.start(now+d);o2.stop(now+d+.7);
+    });
+    if(navigator.vibrate)navigator.vibrate([80,60,120]);
+  }
+
+  // Resurrection flash: massive layered chord + cymbal + sub impact
+  function resurrectionFlash(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    // Sub impact
+    const sub=ctx.createOscillator();sub.type='sine';sub.frequency.setValueAtTime(80,now);
+    sub.frequency.exponentialRampToValueAtTime(30,now+1);
+    const subE=ctx.createGain();subE.gain.setValueAtTime(0.25,now);
+    subE.gain.exponentialRampToValueAtTime(0.001,now+2);
+    sub.connect(subE);subE.connect(masterGain);sub.start();sub.stop(now+2.5);
+    // Massive D major chord across 4 octaves
+    [73.42,146.83,185,220,293.66,369.99,440,587.33,739.99,880,1174.66].forEach(f=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+      const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*1.002;
+      const e=ctx.createGain();e.gain.setValueAtTime(0,now);
+      e.gain.linearRampToValueAtTime(0.04,now+.04);
+      e.gain.linearRampToValueAtTime(0.03,now+1.5);
+      e.gain.exponentialRampToValueAtTime(0.001,now+5);
+      const e2=ctx.createGain();e2.gain.setValueAtTime(0,now);
+      e2.gain.linearRampToValueAtTime(0.025,now+.06);
+      e2.gain.exponentialRampToValueAtTime(0.001,now+4);
+      const mix=ctx.createGain();o.connect(e);o2.connect(e2);e.connect(mix);e2.connect(mix);
+      dryWet(mix,0.5,0.7);
+      o.start();o.stop(now+6);o2.start();o2.stop(now+5);
+    });
+    // Cymbal wash
+    const nb=ctx.createBuffer(1,ctx.sampleRate*2|0,ctx.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    const ns=ctx.createBufferSource();ns.buffer=nb;
+    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=5000;
+    const ng=ctx.createGain();ng.gain.setValueAtTime(0.1,now);
+    ng.gain.exponentialRampToValueAtTime(0.001,now+3);
+    ns.connect(hp);hp.connect(ng);dryWet(ng,0.5,0.8);ns.start();ns.stop(now+3.5);
+  }
+
+  // Seth atmosphere: cold wind burst for checkSeth
+  function sethAtmosphere(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    const nb=ctx.createBuffer(1,ctx.sampleRate*3|0,ctx.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    const ns=ctx.createBufferSource();ns.buffer=nb;ns.loop=false;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=600;bp.Q.value=0.3;
+    bp.frequency.linearRampToValueAtTime(1200,now+1.5);bp.frequency.linearRampToValueAtTime(400,now+3);
+    const e=ctx.createGain();e.gain.setValueAtTime(0,now);
+    e.gain.linearRampToValueAtTime(0.04,now+.5);
+    e.gain.linearRampToValueAtTime(0.03,now+2);
+    e.gain.exponentialRampToValueAtTime(0.001,now+3);
+    ns.connect(bp);bp.connect(e);dryWet(e,0.7,0.4);ns.start();ns.stop(now+3.5);
+    // Low tension drone
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=55;
+    const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=80;
+    const oe=ctx.createGain();oe.gain.setValueAtTime(0,now);
+    oe.gain.linearRampToValueAtTime(0.06,now+.8);
+    oe.gain.exponentialRampToValueAtTime(0.001,now+3);
+    o.connect(fl);fl.connect(oe);oe.connect(masterGain);o.start();o.stop(now+3.5);
+  }
+
+  // Navigation whoosh
+  function whoosh(){
+    if(!enabled||!ctx)return;
+    const now=ctx.currentTime;
+    const nb=ctx.createBuffer(1,ctx.sampleRate*.5|0,ctx.sampleRate),nd=nb.getChannelData(0);
+    for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    const ns=ctx.createBufferSource();ns.buffer=nb;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=1;
+    bp.frequency.setValueAtTime(200,now);bp.frequency.exponentialRampToValueAtTime(3000,now+.15);
+    bp.frequency.exponentialRampToValueAtTime(500,now+.4);
+    const e=ctx.createGain();e.gain.setValueAtTime(0,now);
+    e.gain.linearRampToValueAtTime(0.05,now+.08);
+    e.gain.exponentialRampToValueAtTime(0.001,now+.4);
+    ns.connect(bp);bp.connect(e);dryWet(e,0.7,0.4);ns.start();ns.stop(now+.5);
+  }
+
+  function charSound(role){
+    if(!enabled||!ctx)return;
+    ({isis:isisChime,seth:sethRumble,anubis:anubisBell,thoth:thothWhisper,osiris:osirisChord})[role]?.();
+  }
+  return{toggle,charSound,fragmentCollect,wrongAnswer,tap,heartbeat,resurrectionFlash,
+    sethAtmosphere,whoosh,msgPing,typeTick,init,get enabled(){return enabled}};
+})();
+
+/* ============================================================
+   🎬 FRAGMENT COLLECTION ANIMATION
+   ============================================================ */
+function playFragmentAnimation(fragName){
+  return new Promise(resolve=>{
+    SFX.fragmentCollect();
+    const overlay=document.createElement('div');overlay.className='frag-overlay';
+    document.body.appendChild(overlay);
+    const hieros='𓂀𓃭𓅃𓆣𓇋𓈖𓉐𓊝𓋹𓌂𓏏𓐍';
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    for(let i=0;i<28;i++){
+      const p=document.createElement('div');p.className='frag-particle';
+      const angle=(i/28)*Math.PI*2+(Math.random()-.5)*.4;
+      const dist=80+Math.random()*140,size=3+Math.random()*5;
+      if(Math.random()>.65){
+        p.textContent=hieros[Math.floor(Math.random()*hieros.length)];
+        p.style.cssText=`left:${cx}px;top:${cy}px;font-size:${12+Math.random()*14}px;color:var(--gold);opacity:0;border-radius:0;background:none;filter:drop-shadow(0 0 6px rgba(212,168,67,.6))`;
+      }else{
+        const hue=35+Math.random()*20;
+        p.style.cssText=`left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;background:hsl(${hue},${70+Math.random()*30}%,${55+Math.random()*25}%);box-shadow:0 0 ${4+Math.random()*8}px hsl(${hue},80%,60%);opacity:0`;
+      }
+      overlay.appendChild(p);
+      const dx=Math.cos(angle)*dist,dy=Math.sin(angle)*dist;
+      p.animate([
+        {transform:'translate(-50%,-50%) scale(0)',opacity:0},
+        {transform:`translate(calc(-50% + ${dx*.3}px),calc(-50% + ${dy*.3}px)) scale(1.5)`,opacity:1,offset:.15},
+        {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.6)`,opacity:.8,offset:.55},
+        {transform:`translate(calc(-50% + ${dx*1.1}px),calc(-50% + ${dy*1.1}px)) scale(0)`,opacity:0}
+      ],{duration:900+Math.random()*400,delay:Math.random()*150,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    }
+    const ring=document.createElement('div');ring.className='frag-ring';overlay.appendChild(ring);
+    ring.animate([{width:'0',height:'0',opacity:.9,borderWidth:'3px'},{width:'240px',height:'240px',opacity:.3,borderWidth:'1px'},{width:'400px',height:'400px',opacity:0,borderWidth:'.5px'}],{duration:800,delay:100,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    const ring2=document.createElement('div');ring2.className='frag-ring';ring2.style.borderColor='var(--gold-light)';overlay.appendChild(ring2);
+    ring2.animate([{width:'0',height:'0',opacity:.6,borderWidth:'2px'},{width:'300px',height:'300px',opacity:.15,borderWidth:'1px'},{width:'500px',height:'500px',opacity:0,borderWidth:'.5px'}],{duration:900,delay:250,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    const glyph=document.createElement('div');glyph.className='frag-glyph';glyph.textContent='𓋹';overlay.appendChild(glyph);
+    glyph.animate([
+      {transform:'translate(-50%,-50%) scale(0) rotate(-180deg)',opacity:0},
+      {transform:'translate(-50%,-50%) scale(1.3) rotate(0deg)',opacity:1,offset:.4},
+      {transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1,offset:.7},
+      {transform:'translate(-50%,-50%) scale(1.1) rotate(0deg)',opacity:0}
+    ],{duration:1600,delay:300,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    const txt=document.createElement('div');txt.className='frag-text';txt.textContent=`⟐ ${fragName} ⟐`;overlay.appendChild(txt);
+    txt.animate([
+      {transform:'translateX(-50%) translateY(20px)',opacity:0},
+      {transform:'translateX(-50%) translateY(0)',opacity:1,offset:.3},
+      {transform:'translateX(-50%) translateY(0)',opacity:1,offset:.7},
+      {transform:'translateX(-50%) translateY(-10px)',opacity:0}
+    ],{duration:1400,delay:500,easing:'ease-out',fill:'forwards'});
+    ['12%','88%'].forEach((pos,i)=>{
+      const line=document.createElement('div');line.className='frag-hieroline';line.style.top=pos;
+      line.textContent='𓂀 𓃭 𓅃 𓆣 𓇋 𓈖 𓉐 𓊝 𓋹 𓌂';overlay.appendChild(line);
+      line.animate([{opacity:0},{opacity:.3,offset:.3},{opacity:.3,offset:.7},{opacity:0}],{duration:1600,delay:400+i*100,fill:'forwards'});
+    });
+    setTimeout(()=>{overlay.remove();resolve()},2200);
+  });
+}
+
+/* ============================================================
+   🎥 OSIRIS RESURRECTION ANIMATION (丙 ending)
+   ============================================================ */
+function playResurrectionAnimation(){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div');ov.className='rez-overlay';ov.id='rezOverlay';
+    document.body.appendChild(ov);
+    const fb=document.createElement('div');fb.className='rez-fragments';ov.appendChild(fb);
+    const sil=document.createElement('div');sil.className='rez-silhouette';
+    sil.innerHTML='<div class="rez-silhouette-inner"></div>';fb.appendChild(sil);
+    const heart=document.createElement('div');heart.className='rez-heartbeat';
+    sil.querySelector('.rez-silhouette-inner').appendChild(heart);
+    const eye=document.createElement('div');eye.className='rez-eye';eye.textContent='𓂀';
+    sil.querySelector('.rez-silhouette-inner').appendChild(eye);
+    const flash=document.createElement('div');flash.className='rez-flash';ov.appendChild(flash);
+    const ankh=document.createElement('div');ankh.className='rez-ankh';ankh.textContent='𓋹';ov.appendChild(ankh);
+    const ttl=document.createElement('div');ttl.className='rez-text';ttl.textContent='OSIRIS REBORN';ov.appendChild(ttl);
+    const sub=document.createElement('div');sub.className='rez-sub';sub.textContent='歐西里斯的復活';ov.appendChild(sub);
+    const cls=document.createElement('button');cls.className='rez-close';cls.textContent='返回';
+    cls.onclick=()=>{ov.remove();resolve()};ov.appendChild(cls);
+
+    const syms=['𓁵','𓂀','𓃭','𓅃','𓆣','𓇋','𓈖','𓉐','𓊝','𓋹','𓌂','𓏏','𓂧','𓐍','𓁢','𓁟'];
+    const frags=[];
+    syms.forEach((s,i)=>{
+      const f=document.createElement('div');f.className='rez-frag';f.textContent=s;
+      const a=(i/syms.length)*Math.PI*2;
+      const rx=100+Math.random()*20,ry=130+Math.random()*20;
+      const px=130+Math.cos(a)*rx,py=160+Math.sin(a)*ry;
+      f.style.left=px+'px';f.style.top=py+'px';f.dataset.ox=px;f.dataset.oy=py;
+      fb.appendChild(f);frags.push(f);
+    });
+
+    const T={appear:500,orbit:2000,sil:4500,hb:5500,eye:7000,flash:7800,title:8600,close:10000};
+
+    frags.forEach((f,i)=>{f.animate([{opacity:0,transform:'scale(0) rotate(-90deg)'},{opacity:.8,transform:'scale(1) rotate(0deg)'}],{duration:400,delay:T.appear+i*80,fill:'forwards',easing:'cubic-bezier(.22,.68,.36,1)'})});
+    frags.forEach((f,i)=>{
+      const ox=+f.dataset.ox,oy=+f.dataset.oy,cX=130,cY=160;
+      const dx=ox-cX,dy=oy-cY,dist=Math.sqrt(dx*dx+dy*dy),sa=Math.atan2(dy,dx);
+      const kf=[];for(let k=0;k<=20;k++){const t=k/20,a=sa+t*Math.PI*.4,r=dist*(1-t*.6);
+        kf.push({left:`${cX+Math.cos(a)*r}px`,top:`${cY+Math.sin(a)*r}px`,opacity:.8,filter:`drop-shadow(0 0 ${8+t*16}px rgba(212,168,67,${.3+t*.4}))`})}
+      f.animate(kf,{duration:2500+Math.random()*500,delay:T.orbit+i*50,fill:'forwards',easing:'ease-in-out'});
+    });
+
+    sil.animate([{opacity:0,filter:'blur(20px)'},{opacity:.3,filter:'blur(12px)',offset:.3},{opacity:.6,filter:'blur(6px)',offset:.7},{opacity:.8,filter:'blur(2px)'}],{duration:2000,delay:T.sil,fill:'forwards',easing:'ease-out'});
+    sil.querySelector('.rez-silhouette-inner').animate([
+      {background:'linear-gradient(180deg,rgba(212,168,67,.05),rgba(212,168,67,.02))',borderColor:'rgba(212,168,67,.08)'},
+      {background:'linear-gradient(180deg,rgba(212,168,67,.2),rgba(46,125,50,.15))',borderColor:'rgba(212,168,67,.3)'}
+    ],{duration:2500,delay:T.sil+500,fill:'forwards'});
+
+    function pulse(d){
+      heart.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:0},{transform:'translate(-50%,-50%) scale(1.8)',opacity:1,offset:.1},{transform:'translate(-50%,-50%) scale(1)',opacity:.7,offset:.3},{transform:'translate(-50%,-50%) scale(1.4)',opacity:.9,offset:.5},{transform:'translate(-50%,-50%) scale(1)',opacity:.6}],{duration:900,delay:d,fill:'forwards',easing:'ease-out'});
+      const pr=document.createElement('div');pr.style.cssText='position:absolute;left:50%;top:40%;width:8px;height:8px;border-radius:50%;border:1px solid var(--gold);transform:translate(-50%,-50%);opacity:0';
+      sil.querySelector('.rez-silhouette-inner').appendChild(pr);
+      pr.animate([{width:'8px',height:'8px',opacity:.8},{width:'80px',height:'80px',opacity:0}],{duration:800,delay:d+50,fill:'forwards'});
+    }
+    pulse(T.hb);pulse(T.hb+700);pulse(T.hb+1100);
+    setTimeout(()=>SFX.heartbeat(),T.hb);setTimeout(()=>SFX.heartbeat(),T.hb+700);setTimeout(()=>SFX.heartbeat(),T.hb+1100);
+
+    eye.animate([{fontSize:'0px',opacity:0},{fontSize:'28px',opacity:1}],{duration:800,delay:T.eye,fill:'forwards',easing:'cubic-bezier(.22,.68,.36,1)'});
+
+    flash.animate([{opacity:0},{opacity:1,offset:.15},{opacity:.8,offset:.4},{opacity:0}],{duration:1200,delay:T.flash,fill:'forwards',easing:'ease-out'});
+    setTimeout(()=>SFX.resurrectionFlash(),T.flash);
+    setTimeout(()=>{fb.animate([{opacity:1},{opacity:0}],{duration:600,fill:'forwards'})},T.flash+100);
+
+    ankh.animate([{opacity:0,transform:'scale(0) rotate(-180deg)'},{opacity:1,transform:'scale(1) rotate(0deg)'}],{duration:1000,delay:T.title,fill:'forwards',easing:'cubic-bezier(.22,.68,.36,1)'});
+    setTimeout(()=>{ankh.animate([{transform:'translateY(0)'},{transform:'translateY(-10px)'},{transform:'translateY(0)'}],{duration:3000,iterations:Infinity,easing:'ease-in-out'})},T.title+1000);
+    ttl.animate([{opacity:0,transform:'translateY(20px)',letterSpacing:'12px'},{opacity:1,transform:'translateY(0)',letterSpacing:'4px'}],{duration:1200,delay:T.title+300,fill:'forwards',easing:'ease-out'});
+    sub.animate([{opacity:0,transform:'translateY(10px)'},{opacity:.7,transform:'translateY(0)'}],{duration:800,delay:T.title+800,fill:'forwards',easing:'ease-out'});
+    cls.animate([{opacity:0},{opacity:1}],{duration:600,delay:T.close,fill:'forwards'});
+    setTimeout(()=>{if(document.getElementById('rezOverlay')){ov.remove();resolve()}},30000);
+  });
+}
 
 /* ============================================================
    📝 GAME DATA
@@ -399,7 +1058,7 @@ function btns(arr){
   arr.forEach(b=>{
     const el=document.createElement('button');
     el.className=`qb ${b.cls||''}`;el.textContent=b.label;
-    if(!b.disabled){el.onclick=()=>{w.remove();btnClick(b)}}
+    if(!b.disabled){el.onclick=()=>{SFX.tap();w.remove();btnClick(b)}}
     else{el.style.opacity='.4';el.style.pointerEvents='none'}
     w.appendChild(el);
   });
@@ -417,10 +1076,10 @@ function starRate(cb){
   chat.appendChild(w);scroll();
 }
 
-function showTyp(role='isis'){const c=CHARS[role]||CHARS.isis;const d=document.createElement('div');d.className=`msg ${c.role}`;d.id='typ';d.innerHTML=`<div class="av">${c.av}</div><div class="bbl"><div class="typing"><span></span><span></span><span></span></div></div>`;chat.appendChild(d);scroll()}
+function showTyp(role='isis'){SFX.typeTick();const c=CHARS[role]||CHARS.isis;const d=document.createElement('div');d.className=`msg ${c.role}`;d.id='typ';d.innerHTML=`<div class="av">${c.av}</div><div class="bbl"><div class="typing"><span></span><span></span><span></span></div></div>`;chat.appendChild(d);scroll()}
 function hideTyp(){const e=$('typ');if(e)e.remove()}
 
-function say(role,text,delay=600){return new Promise(r=>{showTyp(role);setTimeout(()=>{hideTyp();msg(role,text);r()},delay)})}
+function say(role,text,delay=600){return new Promise(r=>{showTyp(role);setTimeout(()=>{hideTyp();msg(role,text);SFX.charSound(role);r()},delay)})}
 
 /* ============================================================
    SETH MILESTONES
@@ -429,6 +1088,7 @@ async function checkSeth(){
   const t=total(),m=SETH_MILE[t];
   if(m&&!S.sethDone[t]){
     S.sethDone[t]=true;save();
+    SFX.sethAtmosphere();
     await new Promise(r=>setTimeout(r,600));
     await say('isis','⋯⋯等等。祭司——氣溫驟降了。',400);
     await say('seth',m.seth,1000);
@@ -459,6 +1119,7 @@ async function autoCheckin(ckId){
   // Auto-complete
   S.completed[st.id]=true;renderTiers();save();
   sheet('fragment',{stationId:st.id,stationName:st.name,fragment:st.frag,total:total()});
+  await playFragmentAnimation(st.frag);
   await say('isis',st.correct,800);
   await checkSeth();
   await say('isis','碎片收入聖壇。繼續前進？',400);
@@ -640,6 +1301,7 @@ function closeQRScanner(){
 async function startSt(sid){
   const st=STATIONS.find(s=>s.id===sid);if(!st)return;
   S.cur=st;S.phase="answering";save();
+  SFX.whoosh();
   await say('isis',`你來到了【${st.name}】。\n\n${st.arrive}`,800);
   await say('isis',st.q,400);
 }
@@ -653,6 +1315,7 @@ async function checkAns(input){
   if(h(t)===st.ansHash){
     S.completed[st.id]=true;renderTiers();save();
     sheet('fragment',{stationId:st.id,stationName:st.name,fragment:st.frag,total:total()});
+    await playFragmentAnimation(st.frag);
     await say('isis',st.correct,800);
     // Special character appearance
     if(st.specialChar){await say(st.specialChar,st.specialLine,800)}
@@ -662,6 +1325,7 @@ async function checkAns(input){
     S.phase="result";
   } else {
     await say('isis','不⋯⋯答案不對。賽特的迷霧遮蔽了你。再試一次，或輸入「提示」。',500);
+    SFX.wrongAnswer();
   }
 }
 
@@ -704,6 +1368,10 @@ async function finishSurvey(){
   const ending=ENDINGS[t]||ENDINGS.甲;
   await say('isis','⋯⋯記錄完成。',400);
   await say('isis',ending,1500);
+  // Resurrection animation for 丙 ending
+  if(t==='丙'){
+    await playResurrectionAnimation();
+  }
   // Osiris speaks in 丙 ending
   if(t==='丙'){
     await say('osiris','⋯⋯伊西斯。',1200);
