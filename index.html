@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>歐西里斯的復活 — 伊西斯的召喚</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#D4A843;--gold-light:#F2D680;--gold-dark:#A07830;
+  --papyrus:#F5E6C8;--lapis:#1B3A6B;--lapis-dark:#0F2340;
+  --scarab:#1A5C3A;--nile:#2E8B8B;--sand:#C2A66B;--obsidian:#1A1A2E;
+  --seth-red:#8B2500;--seth-dark:#4A0000;
+  --anubis-purple:#4A2D6B;--thoth-teal:#1B6B5A;--osiris-green:#2E7D32;
+  --font-display:'Cinzel Decorative',serif;--font-heading:'Cinzel',serif;--font-body:'Noto Sans TC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);background:linear-gradient(180deg,#0F2340,#1A1A2E 40%,#0D1B30);color:var(--papyrus)}
+
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;background:linear-gradient(180deg,rgba(15,35,64,.95),rgba(26,26,46,.98))}
+#puzzleScreen{display:none;position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,#0F2340,#1A1A2E);overflow-y:auto}
+
+.header{padding:10px 16px 6px;text-align:center;border-bottom:2px solid var(--gold-dark);background:linear-gradient(180deg,rgba(27,58,107,.6),transparent);flex-shrink:0}
+.header::after{content:'𓂀 𓃭 𓅃 𓆣 𓇋 𓈖 𓉐 𓊝 𓋹 𓌂 𓂀 𓃭 𓅃 𓆣';display:block;font-size:9px;letter-spacing:4px;color:var(--gold-dark);opacity:.5;margin-top:3px;overflow:hidden;white-space:nowrap}
+.header h1{font-family:var(--font-display);font-size:15px;color:var(--gold);text-shadow:0 0 20px rgba(212,168,67,.3);letter-spacing:2px}
+.header .sub{font-size:10px;color:var(--sand);margin-top:1px;font-family:var(--font-heading);letter-spacing:1px}
+
+/* Progress / Tier tracker */
+.tier-track{padding:8px 12px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;font-size:10px}
+.tier-row{display:flex;align-items:center;gap:6px;margin:3px 0;color:var(--sand)}
+.tier-row .t-label{width:28px;font-family:var(--font-heading);color:var(--gold-dark);font-weight:700;flex-shrink:0}
+.tier-row .t-bars{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.tier-row .t-seg{display:flex;align-items:center;gap:2px}
+.tier-row .t-seg .t-icon{font-size:9px;opacity:.6}
+.t-pip{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--gold-dark);background:rgba(0,0,0,.3);transition:all .4s}
+.t-pip.on{border-color:var(--gold);background:rgba(212,168,67,.2);box-shadow:0 0 6px rgba(212,168,67,.3)}
+.tier-row .t-status{font-size:9px;margin-left:auto;flex-shrink:0}
+.t-status.done{color:#6BCB8B}
+.t-status.pending{color:var(--gold-dark)}
+.tier-row .t-name{font-size:10px;color:var(--papyrus);margin-left:2px}
+
+.chat-area{flex:1;overflow-y:auto;padding:12px;scroll-behavior:smooth}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:2px}
+
+/* Messages */
+.msg{display:flex;gap:8px;margin-bottom:12px;animation:msgIn .4s ease;align-items:flex-start}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.msg.player{flex-direction:row-reverse}
+.msg .av{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;border:1.5px solid var(--gold-dark)}
+.msg .bbl{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.65}
+.msg .bbl .spk{font-size:9px;font-family:var(--font-heading);margin-bottom:2px;letter-spacing:1px}
+
+/* Character themes */
+.msg.isis .av{background:var(--lapis)} .msg.isis .bbl{background:linear-gradient(135deg,#1B3A6B,#0F2340);border-top-left-radius:4px;border:1px solid rgba(212,168,67,.12)} .msg.isis .spk{color:var(--gold)}
+.msg.seth .av{background:var(--seth-red);border-color:var(--seth-red)} .msg.seth .bbl{background:linear-gradient(135deg,#8B2500,#4A0000);border-top-left-radius:4px;border:1px solid rgba(139,37,0,.4)} .msg.seth .spk{color:#FF6B4A}
+.msg.anubis .av{background:var(--anubis-purple);border-color:#7B5EA7} .msg.anubis .bbl{background:linear-gradient(135deg,#4A2D6B,#2D1B40);border-top-left-radius:4px;border:1px solid rgba(123,94,167,.3)} .msg.anubis .spk{color:#B39DDB}
+.msg.thoth .av{background:var(--thoth-teal);border-color:#4DB6AC} .msg.thoth .bbl{background:linear-gradient(135deg,#1B6B5A,#0D3D32);border-top-left-radius:4px;border:1px solid rgba(77,182,172,.3)} .msg.thoth .spk{color:#80CBC4}
+.msg.osiris .av{background:var(--osiris-green);border-color:#66BB6A} .msg.osiris .bbl{background:linear-gradient(135deg,#2E7D32,#1B5E20);border-top-left-radius:4px;border:1px solid rgba(102,187,106,.3)} .msg.osiris .spk{color:#A5D6A7}
+.msg.player .av{background:var(--scarab)} .msg.player .bbl{background:linear-gradient(135deg,#2E5D3A,#1A3D28);border-top-right-radius:4px;border:1px solid rgba(46,139,139,.15)} .msg.player .spk{color:var(--nile)}
+
+/* Buttons */
+.qr{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;justify-content:center;animation:msgIn .4s ease}
+.qb{background:linear-gradient(135deg,rgba(212,168,67,.12),rgba(212,168,67,.05));border:1px solid var(--gold-dark);color:var(--gold-light);padding:8px 14px;border-radius:20px;font-size:12px;font-family:var(--font-body);cursor:pointer;transition:all .3s;text-align:center;min-width:70px}
+.qb:hover,.qb:active{background:linear-gradient(135deg,rgba(212,168,67,.3),rgba(212,168,67,.15));border-color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,168,67,.2)}
+.qb.st{min-width:100px;padding:10px 12px}
+.qb.done{border-color:var(--scarab);color:#6BCB8B;background:rgba(26,92,58,.2);pointer-events:none}
+.qb.done::after{content:' ✓'}
+
+/* Input */
+.inp{display:flex;gap:8px;padding:10px 14px;border-top:1px solid rgba(212,168,67,.15);background:rgba(0,0,0,.3);flex-shrink:0;align-items:center}
+.inp input{flex:1;padding:10px 14px;border-radius:20px;border:1px solid var(--gold-dark);background:rgba(15,35,64,.6);color:var(--papyrus);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color .3s}
+.inp input::placeholder{color:rgba(194,166,107,.4)}
+.inp input:focus{border-color:var(--gold)}
+.inp button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--gold-dark);background:rgba(212,168,67,.1);color:var(--gold);font-size:18px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+
+.typing{display:flex;gap:4px;padding:4px 0}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--gold-dark);animation:td 1.4s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+/* Survey */
+.sv-opt{background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.2);border-radius:12px;padding:8px 12px;margin:4px 0;cursor:pointer;font-size:13px;color:var(--papyrus);transition:all .2s;text-align:left;display:block;width:100%}
+.sv-opt:hover{background:rgba(212,168,67,.2);border-color:var(--gold)}
+.sv-stars{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.sv-stars span{font-size:28px;cursor:pointer;transition:transform .2s;opacity:.4}
+.sv-stars span:hover,.sv-stars span.on{opacity:1;transform:scale(1.2)}
+
+/* Staff PIN overlay */
+.pin-overlay{position:fixed;inset:0;background:rgba(10,15,30,.95);display:flex;align-items:center;justify-content:center;z-index:150;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.pin-card{text-align:center;padding:30px;max-width:340px}
+.pin-card h3{font-family:var(--font-heading);color:var(--gold);font-size:16px;margin-bottom:12px}
+.pin-card p{font-size:12px;color:var(--sand);margin-bottom:16px;line-height:1.5}
+.pin-card input{width:180px;padding:12px;border-radius:12px;border:2px solid var(--gold-dark);background:rgba(15,35,64,.8);color:var(--gold);font-size:20px;text-align:center;letter-spacing:8px;font-family:var(--font-heading);outline:none}
+.pin-card input:focus{border-color:var(--gold)}
+.pin-card .pin-btns{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.pin-card .pin-btn{padding:8px 20px;border-radius:16px;border:1px solid var(--gold-dark);background:rgba(212,168,67,.1);color:var(--gold-light);cursor:pointer;font-size:13px;font-family:var(--font-body)}
+.pin-card .pin-btn.confirm{border-color:var(--gold);background:rgba(212,168,67,.2)}
+.pin-card .pin-err{color:#FF6B4A;font-size:11px;margin-top:8px}
+
+/* Completion overlay */
+.comp{position:fixed;inset:0;background:rgba(10,15,30,.97);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .8s}
+.comp-card{text-align:center;padding:32px 24px;max-width:380px}
+.comp-card .ankh{font-size:52px;margin-bottom:10px;animation:fl 3s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.comp-card h2{font-family:var(--font-display);color:var(--gold);font-size:18px;margin-bottom:8px}
+.comp-card p{color:var(--papyrus);font-size:12px;line-height:1.7;margin-bottom:6px}
+.comp-card .tier-res{display:inline-block;margin-top:12px;padding:10px 24px;border-radius:24px;border:2px solid var(--gold);font-family:var(--font-heading);color:var(--gold);font-size:14px;background:rgba(212,168,67,.1)}
+.comp-card .cbtn{display:block;margin:14px auto 0;background:none;border:1px solid var(--gold-dark);color:var(--gold-light);padding:8px 20px;border-radius:16px;cursor:pointer;font-family:var(--font-body);font-size:12px}
+
+/* Puzzle screen */
+.pz-header{padding:16px;text-align:center;border-bottom:2px solid var(--gold-dark)}
+.pz-header h2{font-family:var(--font-display);color:var(--gold);font-size:16px}
+.pz-header .pz-back{position:absolute;left:16px;top:16px;background:none;border:1px solid var(--gold-dark);color:var(--gold-light);padding:6px 14px;border-radius:12px;cursor:pointer;font-size:11px}
+.pz-content{padding:20px;max-width:480px;margin:0 auto}
+.pz-card{background:rgba(27,58,107,.3);border:1px solid rgba(212,168,67,.15);border-radius:16px;padding:20px;margin:12px 0;text-align:center}
+.pz-card h3{color:var(--gold);font-family:var(--font-heading);font-size:14px;margin-bottom:8px}
+.pz-card p{font-size:12px;color:var(--sand);margin-bottom:12px;line-height:1.5}
+.pz-btn{background:linear-gradient(135deg,rgba(212,168,67,.15),rgba(212,168,67,.08));border:1px solid var(--gold-dark);color:var(--gold-light);padding:10px 20px;border-radius:20px;font-size:13px;cursor:pointer;transition:all .3s;font-family:var(--font-body)}
+.pz-btn:hover{border-color:var(--gold);background:rgba(212,168,67,.25)}
+/* Memory game */
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:320px;margin:12px auto}
+.mem-card{aspect-ratio:1;border-radius:10px;border:1.5px solid var(--gold-dark);background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:all .3s;user-select:none}
+.mem-card.flipped,.mem-card.matched{background:rgba(212,168,67,.15);border-color:var(--gold)}
+.mem-card.matched{opacity:.6;pointer-events:none}
+/* Cipher */
+.cipher-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}
+.cipher-slot{width:36px;height:44px;border:1.5px solid var(--gold-dark);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;background:rgba(0,0,0,.3)}
+.cipher-slot .c-hiero{font-size:14px;color:var(--gold)}
+.cipher-slot input{width:28px;border:none;background:transparent;color:var(--papyrus);font-size:16px;text-align:center;outline:none;font-family:var(--font-body)}
+/* Quiz */
+.quiz-opt{display:block;width:100%;text-align:left;padding:10px 14px;margin:6px 0;border-radius:12px;border:1px solid rgba(212,168,67,.2);background:rgba(0,0,0,.2);color:var(--papyrus);font-size:13px;cursor:pointer;transition:all .2s}
+.quiz-opt:hover{border-color:var(--gold);background:rgba(212,168,67,.1)}
+.quiz-opt.correct{border-color:#66BB6A;background:rgba(46,125,50,.2);color:#A5D6A7}
+.quiz-opt.wrong{border-color:#FF6B4A;background:rgba(139,37,0,.2);color:#FF8A65}
+
+@supports(padding-bottom:env(safe-area-inset-bottom)){.inp{padding-bottom:calc(10px + env(safe-area-inset-bottom))}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>𓋹 OSIRIS 𓋹</h1>
+    <div class="sub">歐西里斯的復活 — 伊西斯的召喚</div>
+  </div>
+  <div class="tier-track" id="tierTrack"></div>
+  <div class="chat-area" id="chatArea"></div>
+  <div class="inp" id="inputArea">
+    <input type="text" id="userInput" placeholder="輸入答案⋯⋯" autocomplete="off">
+    <button onclick="handleSend()">𓂧</button>
+  </div>
+</div>
+<div id="puzzleScreen"></div>
+
+<script>
+/* ============================================================
+   🔧 CONFIG — 設定區
+   ============================================================ */
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwsbz7YCgMxPEWk2wZKRmDc5GO71USv_6p2GLhDCjDU9UfJJOZIgs6NDjKE7xgrxIC0/exec";
+const STAFF_PIN = "2026"; // ← 工作人員驗證 PIN（可自訂）
+
+// QR check-in: 在網址後加 ?checkin=ck1 即可自動觸發打卡
+// 例如: https://yourdomain.com/osiris.html?checkin=ck1
+
+/* ============================================================
+   📝 GAME DATA
+   ============================================================ */
+// Simple hash to obscure answers in source code
+function h(s){let v=0;for(let i=0;i<s.length;i++){v=((v<<5)-v)+s.charCodeAt(i);v|=0}return v}
+
+const CHARS = {
+  isis:   {av:'𓅃', name:'ISIS 伊西斯', role:'isis'},
+  seth:   {av:'𓃩', name:'SETH 賽特', role:'seth'},
+  anubis: {av:'𓁢', name:'ANUBIS 阿努比斯', role:'anubis'},
+  thoth:  {av:'𓁟', name:'THOTH 託特', role:'thoth'},
+  osiris: {av:'𓁵', name:'OSIRIS 歐西里斯', role:'osiris'},
+  player: {av:'𓀀', name:'祭司', role:'player'}
+};
+
+const STATIONS = [
+  // Lab (7)
+  {id:"lab1",name:"岩之有理",cat:"lab",frag:"皮膚",ansHash:h("5"),
+    q:"請回答：2 + 3 = ?",
+    hint:"這是大地表皮下最基本的算術⋯⋯風化作用的第一步。",
+    arrive:"第一個目標鎖定。岩石展區——地底的記憶庫。\n\n歐西里斯的皮膚碎片就在這裡。岩石是大地的表皮，風化、沉積、變質——每一種岩石都是一道傷疤癒合後的證據。賽特撕裂他時留下的每一道傷口，都被封進了這些岩層。\n\n回答守護者的謎題，把它撕出來。",
+    correct:"找到了。歐西里斯的【皮膚】——從岩層裂縫中剝離，帶著三千年的沉積紋路。\n\n這是第一塊碎片。你做到了。\n\n不要停。繼續。"},
+  {id:"lab2",name:"與震共舞",cat:"lab",frag:"雙腳",ansHash:h("3"),
+    q:"請回答：7 - 4 = ?",hint:"斷層不會等人⋯⋯七減四。",
+    arrive:"你腳下的地面不安分。那不是普通的震動——那是歐西里斯的雙腳在地底掙扎。\n\n他是曾經踏遍尼羅河谷的王。賽特把他的雙腳埋進斷層最深處，用板塊的重量壓住它們。\n\n快——斷層不會等人。",
+    correct:"斷層釋放了！歐西里斯的【雙腳】從地殼深處彈射而出。\n\n三千年來第一次，他的腳底感覺到了陽光的溫度。\n\n勢頭不錯。繼續推進。"},
+  {id:"lab3",name:"OBS = Oceanic Beacon Seek",cat:"lab",frag:"大腦",ansHash:h("9"),
+    q:"請回答：3 × 3 = ?",hint:"海底信號中，三三相乘⋯⋯",
+    arrive:"注意——高價值目標。歐西里斯的大腦。\n\n賽特最恐懼的不是歐西里斯的力量，而是他的智慧。所以他把大腦沉進海底最深處，用海洋的白噪音掩蓋信號。\n\nOBS——像撒進深海的神經末梢。歐西里斯的思緒混在信號裡。\n\n從雜訊中分離出信號——這就是你的任務。",
+    correct:"信號鎖定。歐西里斯的【大腦】從海底觀測數據中被提取了出來。\n\n賽特花了所有力氣想把它永遠埋在噪音裡——但你找出來了。信噪比再低，真正的信號也不會消失。"},
+  {id:"lab4",name:"天空情報局",cat:"lab",frag:"嘴巴（口）",ansHash:h("3"),
+    q:"請回答：12 ÷ 4 = ?",hint:"天空的密碼藏在除法裡⋯⋯",
+    arrive:"天空是最大的情報網。每一片雲都是加密的訊息。\n\n歐西里斯的口被封在這張網裡。那張口曾頒布法令、唸出咒語、對我說過只有我能聽的話。\n\n破解天空的密碼，讓他的聲音回來。",
+    correct:"封印瓦解。歐西里斯的【口】重獲自由。\n\n在古埃及的「開口儀式」中，死者的嘴被打開，靈魂才能說話。你剛才做的，就是真實版本。\n\n他第一句話會是什麼？⋯⋯我等了三千年想知道。走吧。"},
+  {id:"lab5",name:"海海人生",cat:"lab",frag:"肺部",ansHash:h("15"),
+    q:"請回答：8 + 7 = ?",hint:"海洋的呼吸⋯⋯八加七。",
+    arrive:"海洋在呼吸。洋流的循環、潮汐的漲退，就是這顆星球的呼吸節奏。\n\n歐西里斯的肺被融進了這個節奏裡。每一次漲潮是吸氣，每一次退潮是吐氣。\n\n要把它濃縮回來，回答守護者的問題。",
+    correct:"海水翻湧——歐西里斯的【肺部】從潮汐中凝聚成形！\n\n歐西里斯的軀體開始有了「形狀」。不再是散落的碎片，而是正在重組的身體。"},
+  {id:"lab6",name:"宇宙醫生",cat:"lab",frag:"心臟",ansHash:h("4"),
+    q:"請回答：√16 = ?",hint:"宇宙的脈動中藏著平方根⋯⋯",
+    arrive:"停一下。這不是普通的碎片。\n\n在古埃及，心臟是靈魂的座標。阿努比斯將心臟放上天秤，與瑪特的真理之羽對秤。心臟比羽毛重，靈魂被吞噬；比羽毛輕，進入永生。\n\n歐西里斯的心臟被藏在宇宙的脈動裡。\n\n集中精神。",
+    correct:"⋯⋯噗通。\n\n那不是你的心跳。那是歐西里斯的。\n\n他的【心臟】從恆星核心中迸射而出——帶著超新星的溫度和脈衝星的節奏。\n\n阿努比斯不需要秤這顆心。它比羽毛輕。裝滿了對子民的責任——也裝著笨拙的、三千年不會冷卻的愛。\n\n⋯⋯抱歉。繼續走吧。",
+    specialChar:"anubis",specialLine:"我是阿努比斯，冥界的守門人。這顆心臟⋯⋯我秤過無數的心，從未見過這麼輕的。它配得上永生。\n\n帶走它吧，祭司。你比多數亡者都更有資格觸碰它。"},
+  {id:"lab7",name:"水族箱裡的小海洋",cat:"lab",frag:"頭髮",ansHash:h("11"),
+    q:"請回答：5 × 2 + 1 = ?",hint:"五的雙倍加一滴尼羅河水⋯⋯",
+    arrive:"最後一個實驗室目標。歐西里斯的頭髮——聽起來不重要？錯了。\n\n在埃及神話中，頭髮是生命力的象徵。歐西里斯的黑髮曾像尼羅河在風中流動。\n\n現在散在水族箱的微小水流中。海葵的觸手、水草的搖曳——都是偽裝。\n\n剝開偽裝，帶回來。",
+    correct:"水中的絲縷聚攏、凝結——歐西里斯的【頭髮】從水流中被抽離。\n\n每一根髮絲帶著微弱電流——殘存的生命力。\n\n不要因為碎片微小就低估它。少了任何一塊，咒術就會崩潰。"},
+  // Exhibit (4)
+  {id:"ex8",name:"地質與地球物理",cat:"exhibit",frag:"骨頭",ansHash:h("4"),
+    q:"請回答：10 - 6 = ?",hint:"從地球骨架分離⋯⋯十減六。",
+    arrive:"進入學者的領域。地球的分層——地殼、地函、地核——就是一副骨架。歐西里斯的骨頭融進了這個結構。\n\n從地球的骨架裡，把他的骨架分離出來。",
+    correct:"裂開了——碎片與地層分離。歐西里斯的【骨頭】被提取出來。\n\n骨頭是架構。沒有它，所有軟組織都無法成形。你給了他支撐一切的框架。"},
+  {id:"ex9",name:"聖嬰現象",cat:"exhibit",frag:"鮮血",ansHash:h("15"),
+    q:"請回答：9 + 6 = ?",hint:"洋流的數字⋯⋯九加六。",
+    arrive:"洋流是地球的血液循環——暖流是動脈，冷流是靜脈。聖嬰現象就是異常脈動。發燒。\n\n歐西里斯的鮮血混進了失控的循環裡。在混亂的洋流中找到他的血脈。",
+    correct:"洋流變色——金色的光掠過太平洋。歐西里斯的【鮮血】被抽離凝聚。\n\n神的血是金色的。碎片之間的連結正在重建。他的身體開始變成一個整體。"},
+  {id:"ex10",name:"系外行星",cat:"exhibit",frag:"雙眼",ansHash:h("4"),
+    q:"請回答：20 ÷ 5 = ?",hint:"望向遠方⋯⋯二十除以五。",
+    arrive:"歐西里斯的雙眼。賽特把它們變成遙遠星系的光點。離地球越遠，他越看不見回家的路。\n\n但人類造了望遠鏡。讓那些光點重新聚焦。",
+    correct:"星光匯聚——歐西里斯的【雙眼】重新凝聚。三千年來他從冥界望向人間，只看見模糊光影。\n\n現在，他看見了。看見了一個正在拼命救他的凡人——就是你。"},
+  {id:"ex11",name:"地科大未來",cat:"exhibit",frag:"雙手",ansHash:h("16"),
+    q:"請回答：6 × 3 - 2 = ?",hint:"未來的計算⋯⋯六的三倍減二。",
+    arrive:"歐西里斯的雙手。左手握權杖，右手握連枷。賽特把碎片藏在「未來」——一個理論上不可觸碰的時間點。\n\n但你們在研究未來。用你的手，把他的手拿回來。",
+    correct:"兩道金光從「未來」的裂縫中被拉回——歐西里斯的【雙手】回歸現在。\n\n你的雙手正在做的事，和他三千年前做的本質上一樣：用行動讓世界變得更好。"},
+  // Check-in (4) - QR code auto-fill supported
+  {id:"ck1",name:"打卡：地科大未來展區",cat:"checkin",frag:"血管",ansHash:h("SIGNAL-CK1"),
+    q:"掃描此處的 QR Code，或輸入打卡密碼",hint:"尋找附近的 QR Code 海報⋯⋯",
+    arrive:"打卡點定位。展區走道本身就是一條血管——連接每一個器官。\n\n掃描 QR Code 或輸入通關密碼以啟動守護印記。",
+    correct:"歐西里斯的【血管】守護印記啟動——走道亮起金色脈絡。\n\n血管連接每一個器官。你啟動的是碎片之間的「通訊網路」。從現在起，碎片能感應彼此。"},
+  {id:"ck2",name:"打卡：理圖主視覺",cat:"checkin",frag:"視覺守護印記",ansHash:h("SIGNAL-CK2"),
+    q:"掃描此處的 QR Code，或輸入打卡密碼",hint:"主視覺海報上藏著 QR Code⋯⋯",
+    arrive:"理圖主視覺。這不只是海報——線條中藏著保護咒紋。\n\n掃描 QR Code 或輸入通關密碼。",
+    correct:"【視覺守護印記】啟動。功能：干擾賽特的追蹤。從現在起，他對你的定位會出現偏差。\n\n簡單說——你剛幫自己裝了一面盾。"},
+  {id:"ck3",name:"打卡：猛瑪象",cat:"checkin",frag:"靈魂碎片α",ansHash:h("SIGNAL-CK3"),
+    q:"掃描此處的 QR Code，或輸入打卡密碼",hint:"猛瑪象化石旁的 QR Code⋯⋯",
+    arrive:"猛瑪象。一萬年前滅絕的巨獸，靈魂能量仍殘留在化石中。\n\n掃描 QR Code 喚醒遠古能量。",
+    correct:"歐西里斯的【靈魂碎片α】與遠古能量共振。一萬年前的生命力和三千年前的神力，在這一刻接通了。\n\n碎片變重了嗎？那是好事。代表它們越來越「真實」。"},
+  {id:"ck4",name:"打卡：地科系門口",cat:"checkin",frag:"靈魂碎片β",ansHash:h("SIGNAL-CK4"),
+    q:"掃描此處的 QR Code，或輸入打卡密碼",hint:"門口附近的 QR Code⋯⋯",
+    arrive:"地科系門口。一切的起點與終點。\n\n掃描 QR Code 啟動最後的守護印記。",
+    correct:"每一扇門都是選擇：進入或離開、開始或結束、生或死。歐西里斯的【靈魂碎片β】就嵌在臨界點上。\n\n你選擇走進來。這個選擇本身，就是碎片被喚醒的原因。"},
+  // Boss
+  {id:"boss",name:"魔王關：賽特的試煉",cat:"bonus",frag:"靈魂（核心）",ansHash:h("55"),
+    q:"最終試煉：1+2+3+4+5+6+7+8+9+10 = ?",hint:"從一數到十全部相加⋯⋯",
+    arrive:"——祭司。在你進去之前，聽我說。\n\n這是賽特的最後防線。歐西里斯的靈魂核心被封在裡面。\n\n賽特不是簡單的反派。他真心相信混沌才是宇宙的本質。\n\n他會試圖說服你：復活沒有意義。\n\n不要聽他的。就算一切終將毀滅，重建本身就是意義。\n\n進去吧。",
+    correct:"𓃩「⋯⋯不可能。」\n\n賽特的詛咒在碎裂——一條一條裂開，像乾涸的河床被水流撐開。\n\n歐西里斯的【靈魂】從廢墟中升起。\n\n𓃩「混沌永遠不會消失——」\n\n他說得對。但歐西里斯也不會。只要有人願意把碎片撿起來——死亡就不是結局。\n\n你做到了，祭司。復活儀式⋯⋯開始。"}
+];
+
+const TIERS = {
+  甲:{lab:2,exhibit:2,checkin:2,bonus:0,reward:"小禮物1份"},
+  乙:{lab:4,exhibit:3,checkin:3,bonus:0,reward:"小禮物1份 ＋ Ａ區抽抽樂乙次"},
+  丙:{lab:4,exhibit:3,checkin:3,bonus:1,reward:"小禮物1份 ＋ Ａ＆Ｂ區抽抽樂各乙次"}
+};
+
+const SETH_MILE = {
+  3:{seth:"有意思。居然有凡人在拆我的封印。\n\n三塊碎片？不錯的開局。但你知道嗎——我拆散他的時候，他甚至來不及叫出聲。你覺得你能撐得比他久？",isis:"——不要理他。賽特的話是沙漠的風，震耳欲聾，但吹不倒金字塔。\n\n你已經證明了能力。繼續走。"},
+  5:{seth:"五塊。你比我預想的頑固。但你有沒有想過——伊西斯要你復活的人，活著時也沒那麼完美。他自大、天真，連親弟弟要殺他都看不出來。\n\n你確定要讓這種人復活嗎？",isis:"⋯⋯他說的沒全錯。歐西里斯確實善良到容易被利用。\n\n但那是他配得上復活的原因。這世界已有太多精於算計的人。它需要一個願意相信別人的傻瓜。\n\n繼續，祭司。"},
+  7:{seth:"七塊。我承認你讓我意外了。\n\n但每找回一塊碎片，結界就薄一層。等結界破了，第一個衝進來的不是歐西里斯——是我。\n\n拼好的東西⋯⋯打碎起來更過癮。",isis:"——他在虛張聲勢。如果他能阻止你，早就動手了。\n\n賽特最大的武器是恐懼。你都走到這裡了——你是會被恐懼打敗的人嗎？"}
+};
+
+const ENDINGS = {
+  丙:"所有碎片懸浮在你面前。它們猛烈旋轉——三千年的等待在這一刻爆發。\n\n骨頭歸位。血管連通。鮮血灌入。皮膚覆蓋。\n\n心臟被放入胸腔。\n\n噗通。噗通。噗通噗通噗通——\n\n雙眼睜開。金色的虹膜倒映著三千年未見的陽光。\n\n嘴巴張開。",
+  乙:"碎片升起，試圖拼合——但有空隙。缺失的部分像黑洞吸收著光。\n\n歐西里斯的輪廓浮現。半實半虛。他張開嘴，只發出無聲氣流。伸出手，手指化為光點。\n\n⋯⋯不夠。但夠讓我知道他還在。\n\n祭司，你已做了很多。這不是失敗——這是進展。",
+  甲:"碎片不多，但每一塊都是真實的。\n\n它們在聖壇上微微發光。信號傳到了冥界最深處。歐西里斯的靈魂在黑暗中動了一下——不是甦醒，只是翻了個身。\n\n他知道有人在找他了。這就夠了。\n\n祭司，你踏出了第一步。"
+};
+
+const SURVEY = [
+  {id:"source",text:"在完成儀式前，神殿需記錄你的來歷。你是如何得知「脈動｜SIGNALS」的？",opts:["社群媒體（IG/FB）","朋友/同學推薦","海報/傳單","學校公告","路過發現","其他"]},
+  {id:"favStation",text:"哪個站點讓你印象最深刻？（最喜歡的關卡或設計）",free:true},
+  {id:"leastFav",text:"哪個站點你覺得可以做得更好？",free:true},
+  {id:"rating",text:"最後——用五芒星衡量，你給這次體驗幾顆星？",type:"stars"}
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const S = {
+  name:"",completed:{},cur:null,phase:"welcome",
+  sethDone:{},surveyStep:0,surveyAns:{},
+  redeemed:false,puzzleUnlocked:false,uid:""
+};
+
+function save(){try{localStorage.setItem('osiris_v3',JSON.stringify(S))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem('osiris_v3'));if(d){Object.assign(S,d);return true}}catch(e){}return false}
+
+/* ============================================================
+   GOOGLE SHEETS
+   ============================================================ */
+function sheet(action,data){
+  if(!SHEETS_URL)return;
+  try{fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,player:S.name,uid:S.uid,ts:new Date().toISOString(),...data})})}catch(e){}
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const chat=$('chatArea'),inp=$('userInput');
+function scroll(){setTimeout(()=>{chat.scrollTop=chat.scrollHeight},60)}
+function cnt(c){return STATIONS.filter(s=>s.cat===c&&S.completed[s.id]).length}
+function total(){return Object.keys(S.completed).length}
+function tier(){
+  const l=cnt("lab"),e=cnt("exhibit"),c=cnt("checkin"),b=cnt("bonus");
+  if(l>=TIERS.丙.lab&&e>=TIERS.丙.exhibit&&c>=TIERS.丙.checkin&&b>=TIERS.丙.bonus)return"丙";
+  if(l>=TIERS.乙.lab&&e>=TIERS.乙.exhibit&&c>=TIERS.乙.checkin)return"乙";
+  if(l>=TIERS.甲.lab&&e>=TIERS.甲.exhibit&&c>=TIERS.甲.checkin)return"甲";
+  return null;
+}
+
+/* ============================================================
+   TIER PROGRESS BAR
+   ============================================================ */
+function renderTiers(){
+  const tk=$('tierTrack');
+  const l=cnt("lab"),e=cnt("exhibit"),c=cnt("checkin"),b=cnt("bonus");
+  function row(label,reqs,extra){
+    const checks=[
+      {icon:'🏛',have:l,need:reqs.lab},
+      {icon:'📜',have:e,need:reqs.exhibit},
+      {icon:'📍',have:c,need:reqs.checkin}
+    ];
+    if(reqs.bonus>0)checks.push({icon:'💀',have:b,need:reqs.bonus});
+    const allMet=checks.every(x=>x.have>=x.need);
+    let h=`<div class="tier-row"><span class="t-label">${label}</span><div class="t-bars">`;
+    checks.forEach(x=>{
+      h+=`<span class="t-seg"><span class="t-icon">${x.icon}</span>`;
+      for(let i=0;i<x.need;i++) h+=`<span class="t-pip ${i<x.have?'on':''}"></span>`;
+      h+=`</span>`;
+    });
+    h+=`</div><span class="t-status ${allMet?'done':'pending'}">${allMet?'✓ 達成':'未達成'}</span></div>`;
+    return h;
+  }
+  let html=`<div style="font-size:9px;color:var(--gold-dark);font-family:var(--font-heading);margin-bottom:4px">𓋹 碎片 ${total()}/${STATIONS.length}${S.name?' | '+S.name:''}</div>`;
+  html+=row('甲',TIERS.甲);
+  html+=row('乙',TIERS.乙);
+  html+=row('丙',TIERS.丙);
+  tk.innerHTML=html;
+}
+
+/* ============================================================
+   CHAT RENDERING
+   ============================================================ */
+function msg(role,text){
+  const c=CHARS[role]||CHARS.isis;
+  const d=document.createElement('div');
+  d.className=`msg ${c.role}`;
+  d.innerHTML=`<div class="av">${c.av}</div><div class="bbl"><div class="spk">${c.name}</div><div>${text.replace(/\n/g,'<br>')}</div></div>`;
+  chat.appendChild(d);scroll();
+}
+
+function btns(arr){
+  const w=document.createElement('div');w.className='qr';
+  arr.forEach(b=>{
+    const el=document.createElement('button');
+    el.className=`qb ${b.cls||''}`;el.textContent=b.label;
+    if(!b.disabled){el.onclick=()=>{w.remove();btnClick(b)}}
+    else{el.style.opacity='.4';el.style.pointerEvents='none'}
+    w.appendChild(el);
+  });
+  chat.appendChild(w);scroll();
+}
+
+function surveyOpts(opts,cb){
+  const w=document.createElement('div');w.style.cssText='margin:8px 0;animation:msgIn .4s ease';
+  opts.forEach(o=>{const b=document.createElement('button');b.className='sv-opt';b.textContent=o;b.onclick=()=>{w.remove();cb(o)};w.appendChild(b)});
+  chat.appendChild(w);scroll();
+}
+function starRate(cb){
+  const w=document.createElement('div');w.className='sv-stars';w.style.cssText='animation:msgIn .4s ease';
+  for(let i=1;i<=5;i++){const s=document.createElement('span');s.textContent='𓇼';s.onclick=()=>{w.querySelectorAll('span').forEach((e,j)=>e.classList.toggle('on',j<i));setTimeout(()=>{w.remove();cb(i)},300)};w.appendChild(s)}
+  chat.appendChild(w);scroll();
+}
+
+function showTyp(role='isis'){const c=CHARS[role]||CHARS.isis;const d=document.createElement('div');d.className=`msg ${c.role}`;d.id='typ';d.innerHTML=`<div class="av">${c.av}</div><div class="bbl"><div class="typing"><span></span><span></span><span></span></div></div>`;chat.appendChild(d);scroll()}
+function hideTyp(){const e=$('typ');if(e)e.remove()}
+
+function say(role,text,delay=600){return new Promise(r=>{showTyp(role);setTimeout(()=>{hideTyp();msg(role,text);r()},delay)})}
+
+/* ============================================================
+   SETH MILESTONES
+   ============================================================ */
+async function checkSeth(){
+  const t=total(),m=SETH_MILE[t];
+  if(m&&!S.sethDone[t]){
+    S.sethDone[t]=true;save();
+    await new Promise(r=>setTimeout(r,600));
+    await say('isis','⋯⋯等等。祭司——氣溫驟降了。',400);
+    await say('seth',m.seth,1000);
+    await say('isis',m.isis,800);
+  }
+}
+
+/* ============================================================
+   QR CODE CHECK-IN HANDLER
+   ============================================================ */
+function checkQRParam(){
+  const p=new URLSearchParams(window.location.search);
+  const ckId=p.get('checkin');
+  if(ckId&&!S.completed[ckId]){
+    const st=STATIONS.find(s=>s.id===ckId);
+    if(st){
+      // Auto-fill the answer after game starts
+      window._pendingCheckin=ckId;
+    }
+  }
+}
+
+async function autoCheckin(ckId){
+  const st=STATIONS.find(s=>s.id===ckId);
+  if(!st||S.completed[ckId])return;
+  S.cur=st;S.phase="answering";
+  await say('isis',`📍 QR Code 掃描成功！自動定位到【${st.name}】。\n\n${st.arrive}`,600);
+  // Auto-complete
+  S.completed[st.id]=true;renderTiers();save();
+  sheet('fragment',{stationId:st.id,stationName:st.name,fragment:st.frag,total:total()});
+  await say('isis',st.correct,800);
+  await checkSeth();
+  await say('isis','碎片收入聖壇。繼續前進？',400);
+  btns([{label:'繼續搜尋',action:'hub'},{label:'查看進度',action:'progress'}]);
+  S.phase="result";
+}
+
+/* ============================================================
+   GAME FLOW
+   ============================================================ */
+async function startGame(){
+  checkQRParam();
+  renderTiers();
+  if(load()&&S.name&&total()>0){
+    renderTiers();
+    await say('isis',`祭司 ${S.name}，你回來了。結界仍在，碎片仍在等待。\n\n已收集 ${total()} 塊碎片。繼續你的任務。`,800);
+    if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){await autoCheckin(window._pendingCheckin);return}
+    hub();return;
+  }
+  S.uid='P'+Date.now().toString(36).toUpperCase();
+  await say('isis','——你不該在這裡。\n\n你踏入的這片土地被古老咒術封鎖了三千年。空氣變得厚重，光線扭曲，時間開始以不同速度流動。\n\n你穿越了一道結界。',1200);
+  await say('isis','我是伊西斯。魔法的主人，王座的守護者。\n\n我的丈夫歐西里斯被他的弟弟賽特碎屍十四塊，碎片散落各處。三千年來，我的神力無法直接觸碰碎片——結界太強。\n\n然後你闖進來了。凡人的手不受結界限制。命運把你送到我面前。',1200);
+  await say('isis','你有兩個選擇：\n\n轉身離開——但結界已標記了你。\n\n或成為我的祭司。收集得越多，賽特越警覺。\n\n所以——快。準確。不要猶豫。\n\n你接受這個命運嗎？',800);
+  btns([{label:'我接受。',action:'accept'},{label:'⋯⋯這是什麼？',action:'explain'}]);
+}
+
+async function askName(){
+  S.phase="naming";
+  await say('isis','很好。告訴我，你叫什麼名字？\n\n（輸入你的名字或暱稱）',500);
+}
+
+async function hub(){
+  S.phase="hub";S.cur=null;save();
+  const t=tier();
+  await say('isis','選擇目標區域。',300);
+  const b=[
+    {label:`🏛 實驗室 (${cnt('lab')}/7)`,action:'cat',cat:'lab',cls:'st'},
+    {label:`📜 系展 (${cnt('exhibit')}/4)`,action:'cat',cat:'exhibit',cls:'st'},
+    {label:`📍 打卡 (${cnt('checkin')}/4)`,action:'cat',cat:'checkin',cls:'st'},
+    {label:`💀 魔王關 (${cnt('bonus')}/1)`,action:'cat',cat:'bonus',cls:'st'},
+    {label:'📊 進度',action:'progress'}
+  ];
+  if(t)b.push({label:'🏆 兌換獎勵',action:'redeem'});
+  if(S.puzzleUnlocked)b.push({label:'🧩 託特的試煉場',action:'puzzle'});
+  btns(b);
+}
+
+async function showCat(cat){
+  S.phase="stationSelect";
+  const sts=STATIONS.filter(s=>s.cat===cat);
+  btns([...sts.map(s=>({label:`${S.completed[s.id]?'✓ ':''}${s.name}`,action:'station',sid:s.id,cls:`st ${S.completed[s.id]?'done':''}`,disabled:!!S.completed[s.id]})),{label:'← 返回',action:'hub'}]);
+}
+
+async function startSt(sid){
+  const st=STATIONS.find(s=>s.id===sid);if(!st)return;
+  S.cur=st;S.phase="answering";save();
+  await say('isis',`你來到了【${st.name}】。\n\n${st.arrive}`,800);
+  await say('isis',st.q,400);
+}
+
+async function checkAns(input){
+  const st=S.cur;if(!st)return;
+  const t=input.trim();
+  if(['提示','hint','幫助'].includes(t.toLowerCase())){
+    await say('thoth',`𓁟 託特的低語：\n${st.hint}`,500);return;
+  }
+  if(h(t)===st.ansHash){
+    S.completed[st.id]=true;renderTiers();save();
+    sheet('fragment',{stationId:st.id,stationName:st.name,fragment:st.frag,total:total()});
+    await say('isis',st.correct,800);
+    // Special character appearance
+    if(st.specialChar){await say(st.specialChar,st.specialLine,800)}
+    await checkSeth();
+    await say('isis','碎片收入聖壇。繼續前進？',400);
+    btns([{label:'繼續搜尋',action:'hub'},{label:'查看進度',action:'progress'}]);
+    S.phase="result";
+  } else {
+    await say('isis','不⋯⋯答案不對。賽特的迷霧遮蔽了你。再試一次，或輸入「提示」。',500);
+  }
+}
+
+async function showProgress(){
+  const l=cnt("lab"),e=cnt("exhibit"),c=cnt("checkin"),b=cnt("bonus"),t=tier();
+  let txt=`碎片回收狀態：\n\n🏛 實驗室：${l}/7\n📜 系展：${e}/4\n📍 打卡：${c}/4\n💀 魔王關：${b}/1\n\n`;
+  txt+=`── 獎勵進度 ──\n`;
+  txt+=`甲等（${TIERS.甲.reward}）：實驗室${l}/${TIERS.甲.lab} | 系展${e}/${TIERS.甲.exhibit} | 打卡${c}/${TIERS.甲.checkin} → ${l>=TIERS.甲.lab&&e>=TIERS.甲.exhibit&&c>=TIERS.甲.checkin?'✓ 達成':'✗ 未達成'}\n`;
+  txt+=`乙等（${TIERS.乙.reward}）：實驗室${l}/${TIERS.乙.lab} | 系展${e}/${TIERS.乙.exhibit} | 打卡${c}/${TIERS.乙.checkin} → ${l>=TIERS.乙.lab&&e>=TIERS.乙.exhibit&&c>=TIERS.乙.checkin?'✓ 達成':'✗ 未達成'}\n`;
+  txt+=`丙等（${TIERS.丙.reward}）：同乙等 + 魔王關${b}/${TIERS.丙.bonus} → ${t==='丙'?'✓ 達成':'✗ 未達成'}`;
+  await say('isis',txt,500);
+  btns([{label:'繼續搜尋',action:'hub'},...(t?[{label:'🏆 兌換獎勵',action:'redeem'}]:[])]);
+}
+
+/* ============================================================
+   SURVEY + REDEMPTION
+   ============================================================ */
+async function startSurvey(){
+  if(S.redeemed){await say('isis',`你已經兌換過獎勵了，祭司。每人限兌換一次。\n\n${S.puzzleUnlocked?'但託特的試煉場仍然開放。':''}`,500);btns([{label:'返回',action:'hub'}]);return}
+  S.phase="survey";S.surveyStep=0;S.surveyAns={};
+  await say('isis','在授予祝福前——神殿需要記錄。回答幾個問題，這是儀式的一部分。',500);
+  askSQ();
+}
+async function askSQ(){
+  const q=SURVEY[S.surveyStep];
+  if(!q){finishSurvey();return}
+  await say('isis',q.text,400);
+  if(q.opts)surveyOpts(q.opts,a=>handleSA(q.id,a));
+  else if(q.type==='stars')starRate(n=>handleSA(q.id,n+'星'));
+  // free text handled in handleSend
+}
+async function handleSA(qid,ans){
+  S.surveyAns[qid]=ans;msg('player',ans);S.surveyStep++;save();
+  if(S.surveyStep<SURVEY.length){await new Promise(r=>setTimeout(r,300));askSQ()}
+  else finishSurvey();
+}
+async function finishSurvey(){
+  sheet('survey',{answers:S.surveyAns});
+  const t=tier();
+  const ending=ENDINGS[t]||ENDINGS.甲;
+  await say('isis','⋯⋯記錄完成。',400);
+  await say('isis',ending,1500);
+  // Osiris speaks in 丙 ending
+  if(t==='丙'){
+    await say('osiris','⋯⋯伊西斯。',1200);
+    await say('isis','就一個詞。三千年，就等這一個詞。\n\n⋯⋯我不會讓你看到我現在的樣子。女神不應該在凡人面前這樣。\n\n祭司——不。朋友。謝謝你。你做到了我三千年做不到的事。\n\n這就是人類最了不起的地方——你們的力量不來自神力，來自選擇。\n\n𓋹 歐西里斯的祝福與你同在。永遠。𓋹',1500);
+  } else if(t==='乙'){
+    await say('isis','𓋹 願尼羅河的恩澤守護你的道路。𓋹',800);
+  } else {
+    await say('isis','𓋹 願荷魯斯之眼照亮你前方的路。𓋹',800);
+  }
+  // Staff verification
+  await say('anubis','我是阿努比斯。在你領取祝福之前——請將此畫面交給神殿的守衛（工作人員）進行驗證。',800);
+  showPinOverlay(t);
+}
+
+function showPinOverlay(t){
+  const o=document.createElement('div');o.className='pin-overlay';o.id='pinOverlay';
+  o.innerHTML=`<div class="pin-card">
+    <h3>𓁢 工作人員驗證</h3>
+    <p>玩家：${S.name} (${S.uid})<br>達成等級：【${t}等】<br>獎勵：${TIERS[t].reward}<br><br>請工作人員輸入 PIN 碼確認兌獎：</p>
+    <input type="password" id="pinInput" maxlength="6" placeholder="PIN">
+    <div class="pin-btns">
+      <button class="pin-btn" onclick="closePinOverlay()">取消</button>
+      <button class="pin-btn confirm" onclick="verifyPin('${t}')">確認兌獎</button>
+    </div>
+    <div class="pin-err" id="pinErr"></div>
+  </div>`;
+  document.body.appendChild(o);
+  $('pinInput').focus();
+}
+
+function closePinOverlay(){
+  const o=$('pinOverlay');if(o)o.remove();
+  say('isis','兌獎已取消。你可以稍後再來。',400).then(()=>{btns([{label:'返回',action:'hub'}])});
+}
+
+function verifyPin(t){
+  const pin=$('pinInput').value;
+  if(pin===STAFF_PIN){
+    S.redeemed=true;S.puzzleUnlocked=true;save();
+    sheet('redeem',{tier:t,reward:TIERS[t].reward});
+    const o=$('pinOverlay');if(o)o.remove();
+    say('anubis',`✓ 驗證成功。【${t}等】獎勵已確認發放。\n\n祭司 ${S.name}，你的旅程記錄已刻入神殿石碑。`,600).then(()=>{
+      say('thoth',`祭司，我是託特——智慧與文字之神。\n\n你的儀式已完成，但如果你渴望更多挑戰⋯⋯我的試煉場已為你開啟。\n\n那裡有拼圖、密碼、記憶考驗和知識問答。純粹的智慧較量，沒有獎勵——只有榮耀。`,800).then(()=>{
+        btns([{label:'🧩 進入託特的試煉場',action:'puzzle'},{label:'結束旅程',action:'end'}]);
+      });
+    });
+    showComp(t);
+  } else {
+    $('pinErr').textContent='PIN 碼錯誤，請重試';
+    $('pinInput').value='';$('pinInput').focus();
+  }
+}
+
+function showComp(t){
+  const o=document.createElement('div');o.className='comp';o.id='compOverlay';
+  const titles={丙:'OSIRIS REBORN',乙:'OSIRIS AWAKENING',甲:'OSIRIS STIRRING'};
+  const descs={丙:'歐西里斯復活了。',乙:'歐西里斯在半夢半醒間感謝你。',甲:'歐西里斯感應到了你的努力。'};
+  o.innerHTML=`<div class="comp-card"><div class="ankh">𓋹</div><h2>${titles[t]}</h2><p>${descs[t]}</p><div class="tier-res">${t}等 — ${TIERS[t].reward}</div><button class="cbtn" onclick="$('compOverlay').remove()">返回</button></div>`;
+  document.body.appendChild(o);
+}
+
+/* ============================================================
+   PUZZLE MINI-GAMES (託特的試煉場)
+   ============================================================ */
+function openPuzzles(){
+  const ps=$('puzzleScreen');ps.style.display='block';
+  ps.innerHTML=`<div class="pz-header" style="position:relative">
+    <button class="pz-back" onclick="closePuzzles()">← 返回主線</button>
+    <h2>𓁟 託特的試煉場</h2>
+  </div>
+  <div class="pz-content">
+    <p style="text-align:center;color:var(--sand);font-size:12px;margin-bottom:16px">純粹的智慧較量。沒有獎勵——只有榮耀。</p>
+    <div class="pz-card"><h3>🧩 歐西里斯拼圖</h3><p>在記憶中重組歐西里斯的碎片</p><button class="pz-btn" onclick="startMemory()">開始挑戰</button></div>
+    <div class="pz-card"><h3>𓀀 象形文字密碼</h3><p>破解古老的象形文字密碼</p><button class="pz-btn" onclick="startCipher()">開始挑戰</button></div>
+    <div class="pz-card"><h3>📚 眾神知識問答</h3><p>考驗你對埃及神話與地球科學的了解</p><button class="pz-btn" onclick="startQuiz()">開始挑戰</button></div>
+  </div>`;
+}
+function closePuzzles(){$('puzzleScreen').style.display='none'}
+
+// ── Memory Match Game ──
+function startMemory(){
+  const pairs=['𓅃','𓃩','𓁢','𓁟','𓁵','𓋹','𓂀','𓆣'];
+  let cards=[...pairs,...pairs].sort(()=>Math.random()-.5);
+  let flipped=[],matched=0,lock=false;
+  const pz=$('puzzleScreen');
+  pz.querySelector('.pz-content').innerHTML=`
+    <h3 style="text-align:center;color:var(--gold);font-family:var(--font-heading);margin:12px 0">記憶配對 — 翻轉找出成對的神祇符號</h3>
+    <div class="mem-grid" id="memGrid"></div>
+    <p id="memStatus" style="text-align:center;color:var(--sand);font-size:12px;margin-top:12px">翻開兩張牌，找出配對</p>
+    <button class="pz-btn" style="display:block;margin:16px auto" onclick="openPuzzles()">← 返回試煉場</button>`;
+  const grid=$('memGrid');
+  cards.forEach((sym,i)=>{
+    const c=document.createElement('div');c.className='mem-card';c.dataset.idx=i;c.dataset.sym=sym;
+    c.textContent='𓊝';
+    c.onclick=()=>{
+      if(lock||c.classList.contains('flipped')||c.classList.contains('matched'))return;
+      c.classList.add('flipped');c.textContent=sym;flipped.push(c);
+      if(flipped.length===2){
+        lock=true;
+        const[a,b]=flipped;
+        if(a.dataset.sym===b.dataset.sym){
+          a.classList.add('matched');b.classList.add('matched');
+          matched++;flipped=[];lock=false;
+          if(matched===pairs.length)$('memStatus').textContent='🎉 全部配對完成！託特對你的記憶力表示敬意。';
+        }else{
+          setTimeout(()=>{a.classList.remove('flipped');a.textContent='𓊝';b.classList.remove('flipped');b.textContent='𓊝';flipped=[];lock=false},800);
+        }
+      }
+    };
+    grid.appendChild(c);
+  });
+}
+
+// ── Cipher Game ──
+function startCipher(){
+  const hieroglyphs={'𓅃':'I','𓃩':'S','𓁢':'A','𓁟':'T','𓋹':'N','𓆣':'K','𓂀':'H','𓊝':'R','𓇋':'E','𓈖':'L'};
+  const words=[
+    {hiero:['𓅃','𓃩','𓅃','𓃩'],answer:'ISIS'},
+    {hiero:['𓁟','𓊝','𓇋','𓇋'],answer:'TREE'},
+    {hiero:['𓈖','𓅃','𓆣','𓇋'],answer:'LIKE'},
+    {hiero:['𓂀','𓇋','𓁢','𓊝','𓁟'],answer:'HEART'}
+  ];
+  const puzzle=words[Math.floor(Math.random()*words.length)];
+  const pz=$('puzzleScreen');
+  pz.querySelector('.pz-content').innerHTML=`
+    <h3 style="text-align:center;color:var(--gold);font-family:var(--font-heading);margin:12px 0">象形文字密碼</h3>
+    <p style="text-align:center;color:var(--sand);font-size:12px;margin-bottom:8px">密碼表：${Object.entries(hieroglyphs).map(([k,v])=>`${k}=${v}`).join('  ')}</p>
+    <div class="cipher-grid" id="cipherGrid"></div>
+    <p id="cipherStatus" style="text-align:center;color:var(--sand);font-size:12px;margin-top:12px">根據密碼表，填入對應的英文字母</p>
+    <button class="pz-btn" style="display:block;margin:16px auto" onclick="checkCipher('${puzzle.answer}')">確認</button>
+    <button class="pz-btn" style="display:block;margin:8px auto;opacity:.6" onclick="openPuzzles()">← 返回</button>`;
+  const grid=$('cipherGrid');
+  puzzle.hiero.forEach((h,i)=>{
+    const slot=document.createElement('div');slot.className='cipher-slot';
+    slot.innerHTML=`<span class="c-hiero">${h}</span><input maxlength="1" data-ci="${i}">`;
+    grid.appendChild(slot);
+  });
+}
+window.checkCipher=function(answer){
+  const inputs=document.querySelectorAll('[data-ci]');
+  const guess=[...inputs].map(i=>i.value.toUpperCase()).join('');
+  if(guess===answer)$('cipherStatus').textContent='🎉 正確！你已掌握了象形文字密碼術。';
+  else $('cipherStatus').textContent='✗ 不正確⋯⋯再看看密碼表。';
+};
+
+// ── Quiz Game ──
+function startQuiz(){
+  const questions=[
+    {q:'在古埃及神話中，誰是冥界的審判者？',opts:['拉','阿努比斯','託特','荷魯斯'],ans:1},
+    {q:'地球的哪一層是液態的？',opts:['地殼','地函','外地核','內地核'],ans:2},
+    {q:'聖嬰現象主要影響哪個海洋？',opts:['大西洋','印度洋','太平洋','北冰洋'],ans:2},
+    {q:'歐西里斯的妻子是誰？',opts:['哈索爾','芭絲特','伊西斯','瑪特'],ans:2},
+    {q:'地震波中，哪種波無法穿透液體？',opts:['P波','S波','表面波','Love波'],ans:1},
+    {q:'OBS 在海洋學中代表什麼？',opts:['Ocean Bottom Seismometer','Ocean Beacon System','Oceanic Base Station','Ocean Bottom Scanner'],ans:0},
+    {q:'古埃及的「開口儀式」的目的是什麼？',opts:['讓死者開口說話與進食','打開金字塔的入口','開啟尼羅河的洪水閘門','開始農耕季節'],ans:0},
+    {q:'板塊構造理論中，臺灣位於哪兩個板塊的交界？',opts:['太平洋板塊與歐亞板塊','菲律賓海板塊與歐亞板塊','印度板塊與歐亞板塊','太平洋板塊與菲律賓海板塊'],ans:1}
+  ];
+  let idx=0,score=0;
+  const shuffled=questions.sort(()=>Math.random()-.5).slice(0,5);
+  function showQ(){
+    if(idx>=shuffled.length){
+      const pz=$('puzzleScreen');
+      pz.querySelector('.pz-content').innerHTML=`<div class="pz-card"><h3>測驗完成！</h3><p>得分：${score} / ${shuffled.length}</p><p style="margin-top:8px">${score===shuffled.length?'🎉 滿分！託特封你為「智慧之友」！':score>=3?'不錯！託特對你點了點頭。':'再多學習一些吧⋯⋯託特期待你的進步。'}</p><button class="pz-btn" style="margin-top:12px" onclick="openPuzzles()">← 返回試煉場</button></div>`;
+      return;
+    }
+    const qd=shuffled[idx];
+    const pz=$('puzzleScreen');
+    pz.querySelector('.pz-content').innerHTML=`
+      <h3 style="text-align:center;color:var(--gold);font-family:var(--font-heading);margin:12px 0">問題 ${idx+1}/${shuffled.length}</h3>
+      <div class="pz-card"><p style="font-size:14px;color:var(--papyrus);margin-bottom:16px">${qd.q}</p>
+      <div id="quizOpts">${qd.opts.map((o,i)=>`<button class="quiz-opt" data-qi="${i}">${o}</button>`).join('')}</div></div>
+      <p style="text-align:center;color:var(--sand);font-size:11px">得分：${score}/${shuffled.length}</p>`;
+    document.querySelectorAll('[data-qi]').forEach(b=>{
+      b.onclick=()=>{
+        const picked=parseInt(b.dataset.qi);
+        document.querySelectorAll('[data-qi]').forEach(x=>{x.style.pointerEvents='none';x.classList.add(parseInt(x.dataset.qi)===qd.ans?'correct':'');if(parseInt(x.dataset.qi)===picked&&picked!==qd.ans)x.classList.add('wrong')});
+        if(picked===qd.ans)score++;
+        idx++;setTimeout(showQ,1000);
+      };
+    });
+  }
+  showQ();
+}
+
+/* ============================================================
+   EVENT HANDLERS
+   ============================================================ */
+async function btnClick(b){
+  switch(b.action){
+    case 'accept':msg('player','我接受。');await say('isis','很好⋯⋯我在你身上看到了不該存在於凡人眼中的東西。',500);askName();break;
+    case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展4站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'}]);break;
+    case 'cat':msg('player',{lab:'前往實驗室',exhibit:'前往系展',checkin:'前往打卡點',bonus:'挑戰魔王關'}[b.cat]);showCat(b.cat);break;
+    case 'station':msg('player',`前往 ${STATIONS.find(s=>s.id===b.sid).name}`);startSt(b.sid);break;
+    case 'hub':hub();break;
+    case 'progress':msg('player','查看進度');showProgress();break;
+    case 'redeem':msg('player','兌換獎勵');startSurvey();break;
+    case 'puzzle':openPuzzles();break;
+    case 'end':msg('player','結束旅程');await say('isis','願你在結界之外的世界，也能記住今天的選擇。\n\n𓋹 再見，祭司。𓋹',600);break;
+  }
+}
+
+function handleSend(){
+  const t=inp.value.trim();if(!t)return;inp.value='';msg('player',t);
+  if(S.phase==='naming'){
+    S.name=t;save();renderTiers();
+    sheet('register',{name:S.name});
+    say('isis',`${t}⋯⋯好。從現在起，你是我的祭司。\n\n輸入「提示」獲得託特的指引。輸入「進度」查看碎片。\n\n出發。`,600).then(()=>{
+      if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){autoCheckin(window._pendingCheckin)}else{hub()}
+    });return;
+  }
+  if(S.phase==='answering'&&S.cur){checkAns(t);return}
+  if(S.phase==='survey'){
+    const q=SURVEY[S.surveyStep];
+    if(q&&(q.free||(!q.opts&&q.type!=='stars'))){
+      S.surveyAns[q.id]=t;S.surveyStep++;save();
+      if(S.surveyStep<SURVEY.length)askSQ();else finishSurvey();return;
+    }
+  }
+  const lo=t.toLowerCase();
+  if(['進度','progress'].includes(lo))showProgress();
+  else if(['幫助','help'].includes(lo))say('isis','點選按鈕選擇站點 | 「進度」查看狀態 | 回答時「提示」獲助 | 「重置」清除進度',400).then(()=>hub());
+  else if(lo==='重置'||lo==='reset'){localStorage.removeItem('osiris_v3');location.reload()}
+  else say('isis','祭司，使用按鈕選擇目的地，或輸入「幫助」。',300);
+}
+
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')handleSend()});
+
+// ── Init ──
+startGame();
+</script>
+</body>
+</html>
