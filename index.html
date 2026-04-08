@@ -853,53 +853,49 @@ const CHARS = {
 
 const STATIONS = [
   // Lab (7)
-  {id:"lab1",name:"岩之有理",cat:"lab",frag:"皮膚",ansHash:h("5"),
-    q:"請回答：2 + 3 = ?",
-    hint:"這是大地表皮下最基本的算術⋯⋯風化作用的第一步。",
+  {id:"lab1",name:"岩之有理｜讀懂岩石的故事",cat:"lab",frag:"皮膚",ansHash:h("沉積岩"),
+    q:"請問在西部平原區最可能看到三大岩類的哪一類型？",
+    hint:"平原、河流、沖積⋯⋯想想哪種岩石是一層一層「堆」出來的。",
     arrive:"第一個目標鎖定。岩石展區——地底的記憶庫。\n\n歐西里斯的皮膚碎片就在這裡。岩石是大地的表皮，風化、沉積、變質——每一種岩石都是一道傷疤癒合後的證據。賽特撕裂他時留下的每一道傷口，都被封進了這些岩層。\n\n回答守護者的謎題，把它撕出來。",
     correct:"找到了。歐西里斯的【皮膚】——從岩層裂縫中剝離，帶著三千年的沉積紋路。\n\n這是第一塊碎片。你做到了。\n\n不要停。繼續。"},
-  {id:"lab2",name:"與震共舞",cat:"lab",frag:"雙腳",ansHash:h("3"),
-    q:"請回答：7 - 4 = ?",hint:"斷層不會等人⋯⋯七減四。",
+  {id:"lab2",name:"與震共舞",cat:"lab",frag:"雙腳",ansHash:h("近距地震"),
+    q:"請問平常能感受到的地震是海報中提及地震家族中的哪一種？",hint:"不是遠方的、不是極深的⋯⋯是離你「近」的那種。",
     arrive:"你腳下的地面不安分。那不是普通的震動——那是歐西里斯的雙腳在地底掙扎。\n\n他是曾經踏遍尼羅河谷的王。賽特把他的雙腳埋進斷層最深處，用板塊的重量壓住它們。\n\n快——斷層不會等人。",
     correct:"斷層釋放了！歐西里斯的【雙腳】從地殼深處彈射而出。\n\n三千年來第一次，他的腳底感覺到了陽光的溫度。\n\n勢頭不錯。繼續推進。"},
-  {id:"lab3",name:"OBS = Oceanic Beacon Seek",cat:"lab",frag:"大腦",ansHash:h("9"),
-    q:"請回答：3 × 3 = ?",hint:"海底信號中，三三相乘⋯⋯",
+  {id:"lab3",name:"OBS = Oceanic Beacon Seek",cat:"lab",frag:"大腦",ansHash:h("OBS"),
+    q:"海底地震儀的英文簡寫是什麼？",hint:"三個英文字母⋯⋯展區名稱裡就有答案。",
     arrive:"注意——高價值目標。歐西里斯的大腦。\n\n賽特最恐懼的不是歐西里斯的力量，而是他的智慧。所以他把大腦沉進海底最深處，用海洋的白噪音掩蓋信號。\n\nOBS——像撒進深海的神經末梢。歐西里斯的思緒混在信號裡。\n\n從雜訊中分離出信號——這就是你的任務。",
     correct:"信號鎖定。歐西里斯的【大腦】從海底觀測數據中被提取了出來。\n\n賽特花了所有力氣想把它永遠埋在噪音裡——但你找出來了。信噪比再低，真正的信號也不會消失。"},
-  {id:"lab4",name:"天空情報局",cat:"lab",frag:"嘴巴（口）",ansHash:h("3"),
-    q:"請回答：12 ÷ 4 = ?",hint:"天空的密碼藏在除法裡⋯⋯",
+  {id:"lab4",name:"天空情報局",cat:"lab",frag:"嘴巴（口）",ansHash:h("積雨雲"),
+    q:"哪一種雲最可能帶來雷暴和強降雨？",hint:"它的名字裡有「雨」也有「積」⋯⋯又高又厚的那種。",
     arrive:"天空是最大的情報網。每一片雲都是加密的訊息。\n\n歐西里斯的口被封在這張網裡。那張口曾頒布法令、唸出咒語、對我說過只有我能聽的話。\n\n破解天空的密碼，讓他的聲音回來。",
     correct:"封印瓦解。歐西里斯的【口】重獲自由。\n\n在古埃及的「開口儀式」中，死者的嘴被打開，靈魂才能說話。你剛才做的，就是真實版本。\n\n他第一句話會是什麼？⋯⋯我等了三千年想知道。走吧。"},
-  {id:"lab5",name:"海海人生",cat:"lab",frag:"肺部",ansHash:h("15"),
-    q:"請回答：8 + 7 = ?",hint:"海洋的呼吸⋯⋯八加七。",
+  {id:"lab5",name:"海海人生",cat:"lab",frag:"肺部",ansHash:h("西方強化"),
+    q:"請輸入通關密碼！",hint:"答案就在展區裡⋯⋯跟方向和「強化」有關。",
     arrive:"海洋在呼吸。洋流的循環、潮汐的漲退，就是這顆星球的呼吸節奏。\n\n歐西里斯的肺被融進了這個節奏裡。每一次漲潮是吸氣，每一次退潮是吐氣。\n\n要把它濃縮回來，回答守護者的問題。",
     correct:"海水翻湧——歐西里斯的【肺部】從潮汐中凝聚成形！\n\n歐西里斯的軀體開始有了「形狀」。不再是散落的碎片，而是正在重組的身體。"},
-  {id:"lab6",name:"宇宙醫生",cat:"lab",frag:"心臟",ansHash:h("4"),
-    q:"請回答：√16 = ?",hint:"宇宙的脈動中藏著平方根⋯⋯",
+  {id:"lab6",name:"宇宙醫生",cat:"lab",frag:"心臟",ansHash:h("NEBULA"),
+    q:"透過濾鏡後看到了什麼？（請輸入英文大寫）",hint:"一團發光的氣體和塵埃⋯⋯六個英文字母。",
     arrive:"停一下。這不是普通的碎片。\n\n在古埃及，心臟是靈魂的座標。阿努比斯將心臟放上天秤，與瑪特的真理之羽對秤。心臟比羽毛重，靈魂被吞噬；比羽毛輕，進入永生。\n\n歐西里斯的心臟被藏在宇宙的脈動裡。\n\n集中精神。",
     correct:"⋯⋯噗通。\n\n那不是你的心跳。那是歐西里斯的。\n\n他的【心臟】從恆星核心中迸射而出——帶著超新星的溫度和脈衝星的節奏。\n\n阿努比斯不需要秤這顆心。它比羽毛輕。裝滿了對子民的責任——也裝著笨拙的、三千年不會冷卻的愛。\n\n⋯⋯抱歉。繼續走吧。",
     specialChar:"anubis",specialLine:"我是阿努比斯，冥界的守門人。這顆心臟⋯⋯我秤過無數的心，從未見過這麼輕的。它配得上永生。\n\n帶走它吧，祭司。你比多數亡者都更有資格觸碰它。"},
-  {id:"lab7",name:"水族箱裡的小海洋",cat:"lab",frag:"頭髮",ansHash:h("11"),
-    q:"請回答：5 × 2 + 1 = ?",hint:"五的雙倍加一滴尼羅河水⋯⋯",
+  {id:"lab7",name:"水族箱裡的小海洋",cat:"lab",frag:"頭髮",ansHash:h("珊瑚白化"),
+    q:"當海水溫度異常升高時，珊瑚會發生什麼現象？（四個字）",hint:"珊瑚失去了共生藻⋯⋯顏色消失了。",
     arrive:"最後一個實驗室目標。歐西里斯的頭髮——聽起來不重要？錯了。\n\n在埃及神話中，頭髮是生命力的象徵。歐西里斯的黑髮曾像尼羅河在風中流動。\n\n現在散在水族箱的微小水流中。海葵的觸手、水草的搖曳——都是偽裝。\n\n剝開偽裝，帶回來。",
     correct:"水中的絲縷聚攏、凝結——歐西里斯的【頭髮】從水流中被抽離。\n\n每一根髮絲帶著微弱電流——殘存的生命力。\n\n不要因為碎片微小就低估它。少了任何一塊，咒術就會崩潰。"},
   // Exhibit (4)
-  {id:"ex8",name:"地質與地球物理",cat:"exhibit",frag:"骨頭",ansHash:h("4"),
-    q:"請回答：10 - 6 = ?",hint:"從地球骨架分離⋯⋯十減六。",
+  {id:"ex8",name:"地質與地球物理",cat:"exhibit",frag:"骨頭",ansHash:h("地函"),
+    q:"地球內部哪一層的體積最大？",hint:"不是最外面的殼，也不是最中心的核⋯⋯是夾在中間、佔了地球八成體積的那層。",
     arrive:"進入學者的領域。地球的分層——地殼、地函、地核——就是一副骨架。歐西里斯的骨頭融進了這個結構。\n\n從地球的骨架裡，把他的骨架分離出來。",
     correct:"裂開了——碎片與地層分離。歐西里斯的【骨頭】被提取出來。\n\n骨頭是架構。沒有它，所有軟組織都無法成形。你給了他支撐一切的框架。"},
-  {id:"ex9",name:"聖嬰現象",cat:"exhibit",frag:"鮮血",ansHash:h("15"),
-    q:"請回答：9 + 6 = ?",hint:"洋流的數字⋯⋯九加六。",
+  {id:"ex9",name:"聖嬰現象",cat:"exhibit",frag:"鮮血",ansHash:h("太平洋"),
+    q:"聖嬰現象主要發生在哪個大洋？",hint:"地球上最大的那片海洋⋯⋯面積佔了地表三分之一。",
     arrive:"洋流是地球的血液循環——暖流是動脈，冷流是靜脈。聖嬰現象就是異常脈動。發燒。\n\n歐西里斯的鮮血混進了失控的循環裡。在混亂的洋流中找到他的血脈。",
     correct:"洋流變色——金色的光掠過太平洋。歐西里斯的【鮮血】被抽離凝聚。\n\n神的血是金色的。碎片之間的連結正在重建。他的身體開始變成一個整體。"},
-  {id:"ex10",name:"系外行星",cat:"exhibit",frag:"雙眼",ansHash:h("4"),
-    q:"請回答：20 ÷ 5 = ?",hint:"望向遠方⋯⋯二十除以五。",
+  {id:"ex10",name:"系外行星",cat:"exhibit",frag:"雙眼",ansHash:h("適居帶"),
+    q:"在恆星周圍，液態水能存在的軌道範圍被稱為什麼？（三個字）",hint:"也叫「宜居帶」或「金髮女孩區」⋯⋯不太熱、不太冷、剛剛好。",
     arrive:"歐西里斯的雙眼。賽特把它們變成遙遠星系的光點。離地球越遠，他越看不見回家的路。\n\n但人類造了望遠鏡。讓那些光點重新聚焦。",
     correct:"星光匯聚——歐西里斯的【雙眼】重新凝聚。三千年來他從冥界望向人間，只看見模糊光影。\n\n現在，他看見了。看見了一個正在拼命救他的凡人——就是你。"},
-  {id:"ex11",name:"地科大未來",cat:"exhibit",frag:"雙手",ansHash:h("16"),
-    q:"請回答：6 × 3 - 2 = ?",hint:"未來的計算⋯⋯六的三倍減二。",
-    arrive:"歐西里斯的雙手。左手握權杖，右手握連枷。賽特把碎片藏在「未來」——一個理論上不可觸碰的時間點。\n\n但你們在研究未來。用你的手，把他的手拿回來。",
-    correct:"兩道金光從「未來」的裂縫中被拉回——歐西里斯的【雙手】回歸現在。\n\n你的雙手正在做的事，和他三千年前做的本質上一樣：用行動讓世界變得更好。"},
   // Check-in (4) - QR code auto-fill supported
   {id:"ck1",name:"打卡：地科大未來展區",cat:"checkin",frag:"血管",ansHash:h("SIGNAL-CK1"),
     q:"掃描此處的 QR Code，或輸入打卡密碼",hint:"尋找附近的 QR Code 海報⋯⋯",
@@ -918,8 +914,8 @@ const STATIONS = [
     arrive:"地科系門口。一切的起點與終點。\n\n掃描 QR Code 啟動最後的守護印記。",
     correct:"每一扇門都是選擇：進入或離開、開始或結束、生或死。歐西里斯的【靈魂碎片β】就嵌在臨界點上。\n\n你選擇走進來。這個選擇本身，就是碎片被喚醒的原因。"},
   // Boss
-  {id:"boss",name:"魔王關：賽特的試煉",cat:"bonus",frag:"靈魂（核心）",ansHash:h("55"),
-    q:"最終試煉：1+2+3+4+5+6+7+8+9+10 = ?",hint:"從一數到十全部相加⋯⋯",
+  {id:"boss",name:"魔王關：賽特的試煉",cat:"bonus",frag:"靈魂（核心）",ansHash:h("SIGNALS2026"),
+    q:"輸入最終通關密碼以破除賽特的封印。",hint:"這場展覽的名字⋯⋯再加上年份。全部大寫，沒有空格。",
     arrive:"——祭司。在你進去之前，聽我說。\n\n這是賽特的最後防線。歐西里斯的靈魂核心被封在裡面。\n\n賽特不是簡單的反派。他真心相信混沌才是宇宙的本質。\n\n他會試圖說服你：復活沒有意義。\n\n不要聽他的。就算一切終將毀滅，重建本身就是意義。\n\n進去吧。",
     correct:"𓃩「⋯⋯不可能。」\n\n賽特的詛咒在碎裂——一條一條裂開，像乾涸的河床被水流撐開。\n\n歐西里斯的【靈魂】從廢墟中升起。\n\n𓃩「混沌永遠不會消失——」\n\n他說得對。但歐西里斯也不會。只要有人願意把碎片撿起來——死亡就不是結局。\n\n你做到了，祭司。復活儀式⋯⋯開始。"}
 ];
@@ -1207,7 +1203,7 @@ async function hub(){
   await say('isis','選擇目標區域。',300);
   const b=[
     {label:`🏛 實驗室 (${cnt('lab')}/7)`,action:'cat',cat:'lab',cls:'st'},
-    {label:`📜 系展 (${cnt('exhibit')}/4)`,action:'cat',cat:'exhibit',cls:'st'},
+    {label:`📜 系展 (${cnt('exhibit')}/3)`,action:'cat',cat:'exhibit',cls:'st'},
     {label:`📍 打卡 (${cnt('checkin')}/4)`,action:'cat',cat:'checkin',cls:'st'},
     {label:`💀 魔王關 (${cnt('bonus')}/1)`,action:'cat',cat:'bonus',cls:'st'},
     {label:'📷 掃描打卡',action:'scan'},
@@ -1312,7 +1308,7 @@ async function checkAns(input){
   if(['提示','hint','幫助'].includes(t.toLowerCase())){
     await say('thoth',`𓁟 託特的低語：\n${st.hint}`,500);return;
   }
-  if(h(t)===st.ansHash){
+  if(h(t)===st.ansHash || h(t.toUpperCase())===st.ansHash || h(t.toLowerCase())===st.ansHash || h(t.replace(/\s+/g,''))===st.ansHash || h(t.toUpperCase().replace(/\s+/g,''))===st.ansHash){
     S.completed[st.id]=true;renderTiers();save();
     sheet('fragment',{stationId:st.id,stationName:st.name,fragment:st.frag,total:total()});
     await playFragmentAnimation(st.frag);
@@ -1331,7 +1327,7 @@ async function checkAns(input){
 
 async function showProgress(){
   const l=cnt("lab"),e=cnt("exhibit"),c=cnt("checkin"),b=cnt("bonus"),t=tier();
-  let txt=`碎片回收狀態：\n\n🏛 實驗室：${l}/7\n📜 系展：${e}/4\n📍 打卡：${c}/4\n💀 魔王關：${b}/1\n\n`;
+  let txt=`碎片回收狀態：\n\n🏛 實驗室：${l}/7\n📜 系展：${e}/3\n📍 打卡：${c}/4\n💀 魔王關：${b}/1\n\n`;
   txt+=`── 獎勵進度 ──\n`;
   txt+=`甲等（${TIERS.甲.reward}）：實驗室${l}/${TIERS.甲.lab} | 系展${e}/${TIERS.甲.exhibit} | 打卡${c}/${TIERS.甲.checkin} → ${l>=TIERS.甲.lab&&e>=TIERS.甲.exhibit&&c>=TIERS.甲.checkin?'✓ 達成':'✗ 未達成'}\n`;
   txt+=`乙等（${TIERS.乙.reward}）：實驗室${l}/${TIERS.乙.lab} | 系展${e}/${TIERS.乙.exhibit} | 打卡${c}/${TIERS.乙.checkin} → ${l>=TIERS.乙.lab&&e>=TIERS.乙.exhibit&&c>=TIERS.乙.checkin?'✓ 達成':'✗ 未達成'}\n`;
@@ -1562,7 +1558,7 @@ function startQuiz(){
 async function btnClick(b){
   switch(b.action){
     case 'accept':msg('player','我接受。');await say('isis','很好⋯⋯我在你身上看到了不該存在於凡人眼中的東西。',500);askName();break;
-    case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展4站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'},{label:'🔄 恢復進度',action:'restore'}]);break;
+    case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展3站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'},{label:'🔄 恢復進度',action:'restore'}]);break;
     case 'restore':msg('player','我之前來過');startRestore();break;
     case 'cat':msg('player',{lab:'前往實驗室',exhibit:'前往系展',checkin:'前往打卡點',bonus:'挑戰魔王關'}[b.cat]);showCat(b.cat);break;
     case 'scan':msg('player','掃描打卡 QR Code');openQRScanner();break;
