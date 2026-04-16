@@ -47,7 +47,8 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);ba
 .msg{display:flex;gap:8px;margin-bottom:12px;animation:msgIn .4s ease;align-items:flex-start}
 @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .msg.player{flex-direction:row-reverse}
-.msg .av{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;border:1.5px solid var(--gold-dark)}
+.msg .av{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;border:1.5px solid var(--gold-dark);overflow:hidden}
+.msg .av img{width:100%;height:100%;object-fit:cover}
 .msg .bbl{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.65}
 .msg .bbl .spk{font-size:9px;font-family:var(--font-heading);margin-bottom:2px;letter-spacing:1px}
 
@@ -155,7 +156,8 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);ba
 .audio-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.12)}
 
 /* ── Fragment Collection Animation ── */
-.frag-overlay{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden}
+.frag-overlay{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden;background:rgba(5,10,20,.75);animation:fragBgIn .3s ease}
+@keyframes fragBgIn{from{opacity:0}to{opacity:1}}
 .frag-particle{position:absolute;border-radius:50%;pointer-events:none;will-change:transform,opacity}
 .frag-glyph{position:absolute;left:50%;top:50%;font-size:48px;transform:translate(-50%,-50%) scale(0);opacity:0;filter:drop-shadow(0 0 20px rgba(212,168,67,.8));will-change:transform,opacity;z-index:2}
 .frag-ring{position:absolute;left:50%;top:50%;width:0;height:0;border-radius:50%;border:2px solid var(--gold);transform:translate(-50%,-50%);opacity:0;z-index:1}
@@ -178,6 +180,51 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);ba
 .rez-close:hover{border-color:var(--gold);background:rgba(212,168,67,.25)}
 .rez-eye{position:absolute;left:50%;top:28%;transform:translate(-50%,-50%);font-size:0;opacity:0;filter:drop-shadow(0 0 20px rgba(212,168,67,.8))}
 
+/* ── Story Intro Cinematic ── */
+.intro-overlay{position:fixed;inset:0;z-index:250;background:#070B14;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.intro-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;opacity:0;transition:opacity 1s}
+.intro-scene.active{opacity:1}
+.intro-chars{font-size:48px;filter:drop-shadow(0 0 20px rgba(212,168,67,.4));margin-bottom:16px;letter-spacing:12px}
+.intro-text{color:var(--papyrus);font-size:14px;line-height:1.9;text-align:center;max-width:340px;font-family:var(--font-body)}
+.intro-text .highlight{color:var(--gold);font-family:var(--font-heading)}
+.intro-skip{position:fixed;bottom:env(safe-area-inset-bottom,20px);bottom:20px;right:20px;background:none;border:1px solid rgba(212,168,67,.3);color:var(--gold-dark);padding:6px 14px;border-radius:14px;font-size:11px;cursor:pointer;z-index:251;font-family:var(--font-body);transition:all .3s}
+.intro-skip:hover{border-color:var(--gold);color:var(--gold)}
+.intro-tap{color:var(--gold-dark);font-size:11px;margin-top:20px;animation:pulse 2s infinite;font-family:var(--font-heading);letter-spacing:1px}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.9}}
+.intro-divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),transparent);margin:14px 0}
+
+/* ── Personality Test Scenes ── */
+.pt-scene{padding:20px;text-align:center}
+.pt-scene .pt-visual{font-size:56px;margin:16px 0;filter:drop-shadow(0 0 16px rgba(212,168,67,.3))}
+.pt-scene .pt-q{color:var(--papyrus);font-size:15px;margin:12px 0 20px;line-height:1.6;font-family:var(--font-body)}
+.pt-opt{display:block;width:100%;text-align:left;padding:14px 16px;margin:8px 0;border-radius:14px;border:1px solid rgba(212,168,67,.15);background:rgba(0,0,0,.2);color:var(--papyrus);font-size:13px;cursor:pointer;transition:all .3s;font-family:var(--font-body);line-height:1.4}
+.pt-opt:hover,.pt-opt:active{border-color:var(--gold);background:rgba(212,168,67,.1);transform:translateX(4px)}
+.pt-result{padding:24px;text-align:center}
+.pt-result .pt-field{font-family:var(--font-display);font-size:18px;color:var(--gold);margin:8px 0}
+.pt-result .pt-god{font-family:var(--font-heading);font-size:12px;color:var(--gold-dark);margin-top:8px;letter-spacing:1px}
+.pt-bar-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11px;color:var(--sand)}
+.pt-bar-label{width:36px;text-align:right;flex-shrink:0}
+.pt-bar{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.05);overflow:hidden}
+.pt-bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+
+/* ── Live Stats Panel ── */
+.stats-panel{margin:8px 0;padding:12px;background:rgba(0,0,0,.3);border:1px solid rgba(212,168,67,.12);border-radius:14px;animation:msgIn .4s ease;font-size:11px;color:var(--sand)}
+.stats-panel .stats-title{font-family:var(--font-heading);color:var(--gold-dark);font-size:10px;letter-spacing:2px;margin-bottom:8px;text-align:center}
+.stats-row{display:flex;justify-content:space-between;gap:6px;margin-bottom:8px}
+.stats-card{flex:1;text-align:center;padding:8px 4px;background:rgba(212,168,67,.05);border-radius:10px;border:1px solid rgba(212,168,67,.08)}
+.stats-card .stats-num{font-family:var(--font-display);font-size:18px;color:var(--gold);line-height:1.2}
+.stats-card .stats-label{font-size:9px;color:var(--sand);margin-top:2px}
+.stats-bar-wrap{margin:3px 0}
+.stats-bar-title{display:flex;justify-content:space-between;font-size:10px;color:var(--sand)}
+.stats-bar-bg{height:6px;border-radius:3px;background:rgba(255,255,255,.05);overflow:hidden;margin-top:2px}
+.stats-bar-fg{height:100%;border-radius:3px;background:var(--gold-dark);transition:width 1s ease}
+.stats-rank{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(212,168,67,.06)}
+.stats-rank:last-child{border-bottom:none}
+.stats-rank .rank-pos{font-family:var(--font-heading);color:var(--gold);width:18px;text-align:center;font-size:11px}
+.stats-rank .rank-name{flex:1;color:var(--papyrus);font-size:11px}
+.stats-rank .rank-count{color:var(--gold-dark);font-size:10px}
+.stats-update{text-align:center;font-size:9px;color:var(--gold-dark);opacity:.5;margin-top:6px}
+
 @supports(padding-bottom:env(safe-area-inset-bottom)){.inp{padding-bottom:calc(10px + env(safe-area-inset-bottom))}}
 </style>
 </head>
@@ -186,7 +233,7 @@ html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font-body);ba
   <div class="header" style="position:relative">
     <h1>𓋹 OSIRIS 𓋹</h1>
     <div class="sub">歐西里斯的復活 — 伊西斯的召喚</div>
-    <button class="audio-btn" id="audioBtn" onclick="SFX.toggle()" title="音效開關">🔇</button>
+    <button class="audio-btn on" id="audioBtn" onclick="SFX.toggle()" title="音效開關">🔊</button>
   </div>
   <div class="tier-track" id="tierTrack"></div>
   <div class="chat-area" id="chatArea"></div>
@@ -212,7 +259,7 @@ const STAFF_PIN = "2026"; // ← 工作人員驗證 PIN（可自訂）
    多層次、有空間感、角色特色鮮明
    ============================================================ */
 const SFX=(()=>{
-  let ctx=null,enabled=false,bgmNodes=null,masterGain=null,reverbGain=null,reverbDelay=null;
+  let ctx=null,enabled=true,bgmNodes=null,masterGain=null,reverbGain=null,reverbDelay=null;
   const SCALE=[293.66,311.13,392,440,466.16,587.33,622.25,783.99];
   const SCALE_LO=[73.42,77.78,98,110,116.54,146.83,155.56,196];
 
@@ -698,12 +745,175 @@ const SFX=(()=>{
     ns.connect(bp);bp.connect(e);dryWet(e,0.7,0.4);ns.start();ns.stop(now+.5);
   }
 
+  // ── Epic Intro Music: cinematic Egyptian score ──
+  let introNodes=null;
+  function introEpic(){
+    init();if(ctx.state==='suspended')ctx.resume();
+    if(introNodes)stopIntroMusic();
+    const now=ctx.currentTime;
+    const ig=ctx.createGain();ig.gain.value=0.7;ig.connect(ctx.destination);
+
+    // L1: Deep ritualistic drum pattern
+    function drum(t,freq,vol,dur){
+      const o=ctx.createOscillator();o.type='sine';
+      o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*0.3,t+dur);
+      const e=ctx.createGain();e.gain.setValueAtTime(vol,t);
+      e.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      o.connect(e);e.connect(ig);o.start(t);o.stop(t+dur+0.1);
+      // Noise transient
+      const nb=ctx.createBuffer(1,ctx.sampleRate*0.05|0,ctx.sampleRate),nd=nb.getChannelData(0);
+      for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.005));
+      const ns=ctx.createBufferSource();ns.buffer=nb;
+      const nf=ctx.createBiquadFilter();nf.type='lowpass';nf.frequency.value=freq*3;
+      const ne=ctx.createGain();ne.gain.setValueAtTime(vol*0.6,t);ne.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+      ns.connect(nf);nf.connect(ne);ne.connect(ig);ns.start(t);
+    }
+    // Repeating drum pattern — doom doom doom-doom
+    let drumI=null;let drumT=now+0.5;
+    function drumLoop(){
+      if(!introNodes)return;
+      const t=ctx.currentTime;
+      drum(t,80,0.15,0.3);
+      drum(t+0.5,80,0.12,0.25);
+      drum(t+1.0,100,0.18,0.35);
+      drum(t+1.2,70,0.1,0.2);
+      drumI=setTimeout(drumLoop,1600);
+    }
+    drumLoop();
+
+    // L2: Haunting drone — D minor with tension
+    const dr1=ctx.createOscillator();dr1.type='sawtooth';dr1.frequency.value=73.42;// D2
+    const dr1f=ctx.createBiquadFilter();dr1f.type='lowpass';dr1f.frequency.value=150;
+    const dr1g=ctx.createGain();dr1g.gain.value=0.06;
+    dr1.connect(dr1f);dr1f.connect(dr1g);dr1g.connect(ig);dr1.start();
+    // Second drone — minor third
+    const dr2=ctx.createOscillator();dr2.type='sine';dr2.frequency.value=87.31;// F2
+    const dr2g=ctx.createGain();dr2g.gain.value=0.04;
+    dr2.connect(dr2g);dr2g.connect(ig);dr2.start();
+    // Drone breath
+    const drLFO=ctx.createOscillator();drLFO.type='sine';drLFO.frequency.value=0.15;
+    const drLG=ctx.createGain();drLG.gain.value=0.02;
+    drLFO.connect(drLG);drLG.connect(dr1g.gain);drLFO.start();
+
+    // L3: Eerie wind
+    const wLen=ctx.sampleRate*3,wBuf=ctx.createBuffer(1,wLen,ctx.sampleRate),wD=wBuf.getChannelData(0);
+    for(let i=0;i<wLen;i++)wD[i]=Math.random()*2-1;
+    const wind=ctx.createBufferSource();wind.buffer=wBuf;wind.loop=true;
+    const wBP=ctx.createBiquadFilter();wBP.type='bandpass';wBP.frequency.value=500;wBP.Q.value=0.3;
+    const wG=ctx.createGain();wG.gain.value=0.02;
+    wind.connect(wBP);wBP.connect(wG);wG.connect(ig);wind.start();
+    const wLFO=ctx.createOscillator();wLFO.type='sine';wLFO.frequency.value=0.07;
+    const wLG=ctx.createGain();wLG.gain.value=300;
+    wLFO.connect(wLG);wLG.connect(wBP.frequency);wLFO.start();
+
+    // L4: Egyptian melody — pentatonic phrases, played by a "ney flute"
+    const MEL_SCALE=[293.66,311.13,392,440,466.16,587.33,622.25];// D Eb G A Bb D5 Eb5
+    let melI=null;
+    function melPhrase(){
+      if(!introNodes)return;
+      const t=ctx.currentTime;
+      // Pick 3-5 notes from scale
+      const len=3+Math.floor(Math.random()*3);
+      let startNote=Math.floor(Math.random()*4);
+      for(let i=0;i<len;i++){
+        const noteIdx=Math.min(startNote+i,MEL_SCALE.length-1);
+        const f=MEL_SCALE[noteIdx];
+        const nt=t+i*0.35;
+        // Main tone (triangle = flute-like)
+        const o=ctx.createOscillator();o.type='triangle';o.frequency.value=f;
+        // Slight vibrato
+        const vib=ctx.createOscillator();vib.type='sine';vib.frequency.value=5;
+        const vibG=ctx.createGain();vibG.gain.value=f*0.008;
+        vib.connect(vibG);vibG.connect(o.frequency);
+        // Breath noise
+        const nb=ctx.createBuffer(1,ctx.sampleRate*0.3|0,ctx.sampleRate),nd=nb.getChannelData(0);
+        for(let j=0;j<nd.length;j++)nd[j]=Math.random()*2-1;
+        const ns=ctx.createBufferSource();ns.buffer=nb;
+        const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*1.5;bp.Q.value=6;
+        const e=ctx.createGain();
+        e.gain.setValueAtTime(0,nt);
+        e.gain.linearRampToValueAtTime(0.05,nt+0.04);
+        e.gain.linearRampToValueAtTime(0.04,nt+0.2);
+        e.gain.exponentialRampToValueAtTime(0.001,nt+0.5);
+        const ne=ctx.createGain();
+        ne.gain.setValueAtTime(0,nt);
+        ne.gain.linearRampToValueAtTime(0.015,nt+0.02);
+        ne.gain.exponentialRampToValueAtTime(0.001,nt+0.25);
+        const mix=ctx.createGain();mix.gain.value=1;
+        o.connect(e);e.connect(mix);ns.connect(bp);bp.connect(ne);ne.connect(mix);
+        // Send through reverb
+        const dry=ctx.createGain();dry.gain.value=0.6;mix.connect(dry);dry.connect(ig);
+        if(reverbGain){const wet=ctx.createGain();wet.gain.value=0.5;mix.connect(wet);wet.connect(reverbGain)}
+        o.start(nt);o.stop(nt+0.6);vib.start(nt);vib.stop(nt+0.6);ns.start(nt);ns.stop(nt+0.4);
+      }
+      melI=setTimeout(melPhrase,2500+Math.random()*2000);
+    }
+    setTimeout(melPhrase,1200);
+
+    // L5: Periodic gong hit (every ~4s)
+    let gongI=null;
+    function gongHit(){
+      if(!introNodes)return;
+      const t=ctx.currentTime;
+      [73.42,110,146.83].forEach((f,i)=>{
+        const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+        const o2=ctx.createOscillator();o2.type='sine';o2.frequency.value=f*1.5;
+        const e=ctx.createGain();e.gain.setValueAtTime(0.06-i*0.015,t);
+        e.gain.exponentialRampToValueAtTime(0.001,t+3);
+        const e2=ctx.createGain();e2.gain.setValueAtTime(0.02,t);
+        e2.gain.exponentialRampToValueAtTime(0.001,t+2);
+        o.connect(e);o2.connect(e2);e.connect(ig);e2.connect(ig);
+        o.start(t);o.stop(t+3.5);o2.start(t);o2.stop(t+2.5);
+      });
+      gongI=setTimeout(gongHit,4000+Math.random()*2000);
+    }
+    setTimeout(gongHit,2000);
+
+    introNodes={ig,dr1,dr2,drLFO,wind,wLFO,drumI,melI,gongI};
+  }
+
+  function stopIntroMusic(){
+    if(!introNodes)return;
+    // Fade out over 1.5s
+    const ig=introNodes.ig;
+    if(ig&&ctx){
+      ig.gain.linearRampToValueAtTime(0,ctx.currentTime+1.5);
+    }
+    setTimeout(()=>{
+      try{
+        introNodes.dr1.stop();introNodes.dr2.stop();introNodes.drLFO.stop();
+        introNodes.wind.stop();introNodes.wLFO.stop();
+        clearTimeout(introNodes.drumI);clearTimeout(introNodes.melI);clearTimeout(introNodes.gongI);
+      }catch(e){}
+      introNodes=null;
+    },1600);
+  }
+
+  // Scene transition hit — accent for each tap
+  function sceneHit(intensity){
+    if(!ctx)return;
+    init();if(ctx.state==='suspended')ctx.resume();
+    const now=ctx.currentTime;
+    const vol=0.04+(intensity||0)*0.03;
+    // Short metallic accent
+    const o=ctx.createOscillator();o.type='triangle';
+    o.frequency.value=300+Math.random()*200;
+    const e=ctx.createGain();e.gain.setValueAtTime(vol,now);
+    e.gain.exponentialRampToValueAtTime(0.001,now+0.3);
+    o.connect(e);e.connect(masterGain);o.start();o.stop(now+0.4);
+    // Sub thump
+    const s=ctx.createOscillator();s.type='sine';s.frequency.value=80;
+    const se=ctx.createGain();se.gain.setValueAtTime(vol*0.8,now);
+    se.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+    s.connect(se);se.connect(masterGain);s.start();s.stop(now+0.2);
+  }
+
   function charSound(role){
     if(!enabled||!ctx)return;
     ({isis:isisChime,seth:sethRumble,anubis:anubisBell,thoth:thothWhisper,osiris:osirisChord})[role]?.();
   }
   return{toggle,charSound,fragmentCollect,wrongAnswer,tap,heartbeat,resurrectionFlash,
-    sethAtmosphere,whoosh,msgPing,typeTick,init,get enabled(){return enabled}};
+    sethAtmosphere,whoosh,msgPing,typeTick,introEpic,stopIntroMusic,sceneHit,init,get enabled(){return enabled}};
 })();
 
 /* ============================================================
@@ -734,32 +944,37 @@ function playFragmentAnimation(fragName){
         {transform:`translate(calc(-50% + ${dx*.3}px),calc(-50% + ${dy*.3}px)) scale(1.5)`,opacity:1,offset:.15},
         {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.6)`,opacity:.8,offset:.55},
         {transform:`translate(calc(-50% + ${dx*1.1}px),calc(-50% + ${dy*1.1}px)) scale(0)`,opacity:0}
-      ],{duration:900+Math.random()*400,delay:Math.random()*150,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+      ],{duration:1400+Math.random()*500,delay:Math.random()*200,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
     }
     const ring=document.createElement('div');ring.className='frag-ring';overlay.appendChild(ring);
-    ring.animate([{width:'0',height:'0',opacity:.9,borderWidth:'3px'},{width:'240px',height:'240px',opacity:.3,borderWidth:'1px'},{width:'400px',height:'400px',opacity:0,borderWidth:'.5px'}],{duration:800,delay:100,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    ring.animate([{width:'0',height:'0',opacity:.9,borderWidth:'3px'},{width:'280px',height:'280px',opacity:.3,borderWidth:'1.5px'},{width:'450px',height:'450px',opacity:0,borderWidth:'.5px'}],{duration:1200,delay:100,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
     const ring2=document.createElement('div');ring2.className='frag-ring';ring2.style.borderColor='var(--gold-light)';overlay.appendChild(ring2);
-    ring2.animate([{width:'0',height:'0',opacity:.6,borderWidth:'2px'},{width:'300px',height:'300px',opacity:.15,borderWidth:'1px'},{width:'500px',height:'500px',opacity:0,borderWidth:'.5px'}],{duration:900,delay:250,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    ring2.animate([{width:'0',height:'0',opacity:.6,borderWidth:'2px'},{width:'350px',height:'350px',opacity:.2,borderWidth:'1px'},{width:'550px',height:'550px',opacity:0,borderWidth:'.5px'}],{duration:1300,delay:300,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
     const glyph=document.createElement('div');glyph.className='frag-glyph';glyph.textContent='𓋹';overlay.appendChild(glyph);
     glyph.animate([
       {transform:'translate(-50%,-50%) scale(0) rotate(-180deg)',opacity:0},
-      {transform:'translate(-50%,-50%) scale(1.3) rotate(0deg)',opacity:1,offset:.4},
-      {transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1,offset:.7},
+      {transform:'translate(-50%,-50%) scale(1.4) rotate(0deg)',opacity:1,offset:.2},
+      {transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1,offset:.55},
+      {transform:'translate(-50%,-50%) scale(1.05) rotate(0deg)',opacity:1,offset:.82},
       {transform:'translate(-50%,-50%) scale(1.1) rotate(0deg)',opacity:0}
-    ],{duration:1600,delay:300,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
+    ],{duration:2800,delay:400,easing:'cubic-bezier(.22,.68,.36,1)',fill:'forwards'});
     const txt=document.createElement('div');txt.className='frag-text';txt.textContent=`⟐ ${fragName} ⟐`;overlay.appendChild(txt);
     txt.animate([
       {transform:'translateX(-50%) translateY(20px)',opacity:0},
-      {transform:'translateX(-50%) translateY(0)',opacity:1,offset:.3},
-      {transform:'translateX(-50%) translateY(0)',opacity:1,offset:.7},
-      {transform:'translateX(-50%) translateY(-10px)',opacity:0}
-    ],{duration:1400,delay:500,easing:'ease-out',fill:'forwards'});
+      {transform:'translateX(-50%) translateY(0)',opacity:1,offset:.15},
+      {transform:'translateX(-50%) translateY(0)',opacity:1,offset:.78},
+      {transform:'translateX(-50%) translateY(-8px)',opacity:0}
+    ],{duration:2800,delay:600,easing:'ease-out',fill:'forwards'});
     ['12%','88%'].forEach((pos,i)=>{
       const line=document.createElement('div');line.className='frag-hieroline';line.style.top=pos;
       line.textContent='𓂀 𓃭 𓅃 𓆣 𓇋 𓈖 𓉐 𓊝 𓋹 𓌂';overlay.appendChild(line);
-      line.animate([{opacity:0},{opacity:.3,offset:.3},{opacity:.3,offset:.7},{opacity:0}],{duration:1600,delay:400+i*100,fill:'forwards'});
+      line.animate([{opacity:0},{opacity:.35,offset:.15},{opacity:.35,offset:.78},{opacity:0}],{duration:2800,delay:500+i*120,fill:'forwards'});
     });
-    setTimeout(()=>{overlay.remove();resolve()},2200);
+    // Fade out backdrop before removal (~3.8s total)
+    setTimeout(()=>{
+      overlay.animate([{opacity:1},{opacity:0}],{duration:400,fill:'forwards'});
+      setTimeout(()=>{overlay.remove();resolve()},400);
+    },3400);
   });
 }
 
@@ -843,7 +1058,7 @@ function playResurrectionAnimation(){
 function h(s){let v=0;for(let i=0;i<s.length;i++){v=((v<<5)-v)+s.charCodeAt(i);v|=0}return v}
 
 const CHARS = {
-  isis:   {av:'𓅃', name:'ISIS 伊西斯', role:'isis'},
+  isis:   {av:'<img src="data:image/png;base64,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">', name:'ISIS 伊西斯', role:'isis'},
   seth:   {av:'𓃩', name:'SETH 賽特', role:'seth'},
   anubis: {av:'𓁢', name:'ANUBIS 阿努比斯', role:'anubis'},
   thoth:  {av:'𓁟', name:'THOTH 託特', role:'thoth'},
@@ -923,7 +1138,7 @@ const STATIONS = [
 const TIERS = {
   甲:{lab:2,exhibit:2,checkin:2,bonus:0,reward:"小禮物1份"},
   乙:{lab:4,exhibit:3,checkin:3,bonus:0,reward:"小禮物1份 ＋ Ａ區抽抽樂乙次"},
-  丙:{lab:4,exhibit:3,checkin:3,bonus:1,reward:"小禮物1份 ＋ Ａ＆Ｂ區抽抽樂各乙次"}
+  丙:{lab:5,exhibit:3,checkin:4,bonus:1,reward:"小禮物1份 ＋ Ａ＆Ｂ區抽抽樂各乙次"}
 };
 
 const SETH_MILE = {
@@ -932,16 +1147,29 @@ const SETH_MILE = {
   7:{seth:"七塊。我承認你讓我意外了。\n\n但每找回一塊碎片，結界就薄一層。等結界破了，第一個衝進來的不是歐西里斯——是我。\n\n拼好的東西⋯⋯打碎起來更過癮。",isis:"——他在虛張聲勢。如果他能阻止你，早就動手了。\n\n賽特最大的武器是恐懼。你都走到這裡了——你是會被恐懼打敗的人嗎？"}
 };
 
+// Anubis & Thoth milestone dialogues
+const GOD_MILE = {
+  2:{role:'thoth',text:"𓁟 我是託特。記錄者。觀測者。\n\n我不介入紛爭——但我記錄一切。你目前的表現⋯⋯值得被記住。\n\n繼續吧。每一個正確答案都是一筆新紀錄。"},
+  4:{role:'anubis',text:"𓁢 祭司。我注意到你了。\n\n我的職責是守護亡者的旅途。歐西里斯的碎片每回歸一塊，冥界的天秤就微微傾斜。\n\n你正在改變平衡——往好的方向。繼續。"},
+  6:{role:'thoth',text:"𓁟 六塊碎片。你已經超過了大多數挑戰者。\n\n但託特必須提醒你：越接近完整，賽特的反擊越猛烈。你剛才感受到的冷意——那不是錯覺。\n\n知識是你最好的盾。別忘了，你可以隨時召喚我的「提示」。"},
+  9:{role:'anubis',text:"𓁢 九塊。歐西里斯的身體已經開始在冥界投射輪廓了。\n\n我等了三千年，想把他從我的名冊上劃掉。拜託——別讓我白等。\n\n⋯⋯這是阿努比斯說過最接近「加油」的話了。別告訴別人。"},
+  11:{role:'thoth',text:"𓁟 十一塊。距離完整只差最後幾步。\n\n作為智慧之神，我必須說——你展現的不只是知識，而是意志。\n\n知識可以學，意志不能教。它只能在路上磨出來。而你磨出來了。"},
+  13:{role:'anubis',text:"𓁢 幾乎全部了⋯⋯冥界的門在震動。\n\n我已經很久沒見過這種場面。上一次，是三千年前伊西斯第一次嘗試復活儀式的時候。\n\n那次失敗了。但這次——我有種感覺——不會。"}
+};
+
 const ENDINGS = {
   丙:"所有碎片懸浮在你面前。它們猛烈旋轉——三千年的等待在這一刻爆發。\n\n骨頭歸位。血管連通。鮮血灌入。皮膚覆蓋。\n\n心臟被放入胸腔。\n\n噗通。噗通。噗通噗通噗通——\n\n雙眼睜開。金色的虹膜倒映著三千年未見的陽光。\n\n嘴巴張開。",
   乙:"碎片升起，試圖拼合——但有空隙。缺失的部分像黑洞吸收著光。\n\n歐西里斯的輪廓浮現。半實半虛。他張開嘴，只發出無聲氣流。伸出手，手指化為光點。\n\n⋯⋯不夠。但夠讓我知道他還在。\n\n祭司，你已做了很多。這不是失敗——這是進展。",
   甲:"碎片不多，但每一塊都是真實的。\n\n它們在聖壇上微微發光。信號傳到了冥界最深處。歐西里斯的靈魂在黑暗中動了一下——不是甦醒，只是翻了個身。\n\n他知道有人在找他了。這就夠了。\n\n祭司，你踏出了第一步。"
 };
 
+const STATION_NAMES=()=>STATIONS.filter(s=>s.cat!=='bonus').map(s=>s.name);
 const SURVEY = [
-  {id:"source",text:"在完成儀式前，神殿需記錄你的來歷。你是如何得知「脈動｜SIGNALS」的？",opts:["社群媒體（IG/FB）","朋友/同學推薦","海報/傳單","學校公告","路過發現","其他"]},
-  {id:"favStation",text:"哪個站點讓你印象最深刻？（最喜歡的關卡或設計）",free:true},
-  {id:"leastFav",text:"哪個站點你覺得可以做得更好？",free:true},
+  {id:"identity",text:"在進行記錄前——你的身份是？",opts:["國中生","高中生","大學生","本系在學生","系友","其他"]},
+  {id:"source",text:"你是如何得知「脈動｜SIGNALS」的？",opts:["社群媒體（IG/FB）","朋友/同學推薦","海報/傳單","學校公告","路過發現","其他"]},
+  {id:"favStation",text:"哪個站點讓你印象最深刻？（選擇你最喜歡的）",stationPick:true},
+  {id:"leastFav",text:"哪個站點你覺得還可以再改進？",stationPick:true,extraOpt:"都很棒！"},
+  {id:"feedback",text:"有什麼地方可以修正嗎？你的建議對我們很重要。",free:true},
   {id:"rating",text:"最後——用五芒星衡量，你給這次體驗幾顆星？",type:"stars"}
 ];
 
@@ -951,7 +1179,8 @@ const SURVEY = [
 const S = {
   name:"",pin:"",completed:{},cur:null,phase:"welcome",
   sethDone:{},surveyStep:0,surveyAns:{},
-  redeemed:false,puzzleUnlocked:false,uid:""
+  redeemed:"",puzzleUnlocked:false,uid:"",
+  childCount:0,identity:"",followConfirmed:false
 };
 
 // Local save (fast, but may be lost in LINE/IG webview)
@@ -966,30 +1195,132 @@ function loadLocal(){try{const d=JSON.parse(localStorage.getItem('osiris_v3'));i
    ============================================================ */
 function sheet(action,data){
   if(!SHEETS_URL)return;
-  try{fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,player:S.name,uid:S.uid,ts:new Date().toISOString(),...data})})}catch(e){}
+  try{fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,player:S.name,uid:S.uid,ts:new Date().toISOString(),...data})})}catch(e){}
 }
 
-// Cloud save — sends current state to Google Sheet
-let _saveTimer=null;
+// Cloud save — sends current state to Google Sheet (immediate, no debounce)
 function cloudSave(){
   if(!SHEETS_URL||!S.name||!S.pin)return;
-  // Debounce: only save once per 2 seconds
-  clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(()=>{
-    const saveData={completed:S.completed,sethDone:S.sethDone,redeemed:S.redeemed,puzzleUnlocked:S.puzzleUnlocked,uid:S.uid,surveyAns:S.surveyAns};
-    fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',player:S.name,pin:S.pin,saveData})});
-  },2000);
+  const saveData={completed:S.completed,sethDone:S.sethDone,redeemed:S.redeemed,puzzleUnlocked:S.puzzleUnlocked,uid:S.uid,surveyAns:S.surveyAns,identity:S.identity,childCount:S.childCount};
+  try{fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',player:S.name,pin:String(S.pin),saveData})})}catch(e){}
 }
 
 // Cloud load — reads state from Google Sheet (returns promise)
 function cloudLoad(name,pin){
   if(!SHEETS_URL)return Promise.resolve(null);
   const url=`${SHEETS_URL}?action=load&name=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`;
-  return fetch(url).then(r=>r.json()).then(d=>{
+  return fetch(url,{redirect:'follow'}).then(r=>{
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(d=>{
     if(d.status==='ok'&&d.data)return d.data;
     if(d.status==='not_found')return 'not_found';
     return null;
   }).catch(e=>{console.log('Cloud load error:',e);return null});
+}
+
+/* ============================================================
+   📊 LIVE STATS — 即時統計面板
+   ============================================================ */
+let _statsCache=null;
+let _statsTimer=null;
+let _statsLastFetch=0;
+
+function fetchStats(){
+  if(!SHEETS_URL)return Promise.resolve(null);
+  // Don't fetch more than once per 25 seconds
+  if(Date.now()-_statsLastFetch<25000 && _statsCache)return Promise.resolve(_statsCache);
+  _statsLastFetch=Date.now();
+  const url=`${SHEETS_URL}?action=stats`;
+  return fetch(url,{redirect:'follow'}).then(r=>r.json()).then(d=>{
+    if(d.status==='ok'){_statsCache=d;return d}
+    return _statsCache;
+  }).catch(e=>{console.log('Stats fetch error:',e);return _statsCache});
+}
+
+function startStatsPolling(){
+  if(_statsTimer)return;
+  _statsTimer=setInterval(()=>{
+    if(S.phase==='hub')fetchStats().then(d=>{if(d)updateStatsPanel(d)});
+  },30000);
+}
+
+function stopStatsPolling(){
+  if(_statsTimer){clearInterval(_statsTimer);_statsTimer=null}
+}
+
+function renderStatsPanel(){
+  // Create panel element in chat
+  const existing=document.getElementById('liveStats');
+  if(existing)existing.remove();
+  const panel=document.createElement('div');
+  panel.className='stats-panel';
+  panel.id='liveStats';
+  panel.innerHTML=`<div class="stats-title">𓂀 即時戰況 — LIVE</div><div style="text-align:center;padding:8px"><div class="typing"><span></span><span></span><span></span></div><div style="font-size:10px;color:var(--gold-dark);margin-top:4px">正在連接神殿數據⋯⋯</div></div>`;
+  chat.appendChild(panel);scroll();
+  // Fetch and render
+  fetchStats().then(d=>{if(d)updateStatsPanel(d);else{
+    panel.innerHTML=`<div class="stats-title">𓂀 即時戰況</div><div style="text-align:center;font-size:10px;color:var(--gold-dark);padding:8px">暫時無法連接（離線模式）</div>`;
+  }});
+  startStatsPolling();
+}
+
+function updateStatsPanel(d){
+  const panel=document.getElementById('liveStats');
+  if(!panel)return;
+  const s=d.stats||{};
+  const topPlayers=s.topPlayers||[];
+  const stationRates=s.stationRates||[];
+  const tierDist=s.tierDistribution||{none:0,甲:0,乙:0,丙:0};
+  const totalPlayers=s.totalPlayers||0;
+  const avgRating=s.avgRating||0;
+  const totalFragments=s.totalFragments||0;
+  const avgFragments=totalPlayers>0?Math.round(totalFragments/totalPlayers*10)/10:0;
+  
+  let html=`<div class="stats-title">𓂀 即時戰況 — LIVE</div>`;
+  
+  // Top row: key numbers
+  html+=`<div class="stats-row">
+    <div class="stats-card"><div class="stats-num">${totalPlayers}</div><div class="stats-label">祭司人數</div></div>
+    <div class="stats-card"><div class="stats-num">${totalFragments}</div><div class="stats-label">碎片總數</div></div>
+    <div class="stats-card"><div class="stats-num">${avgRating?avgRating.toFixed(1):'—'}</div><div class="stats-label">平均評分</div></div>
+  </div>`;
+  
+  // Tier distribution
+  html+=`<div style="margin:6px 0">`;
+  const tierTotal=Math.max(1,tierDist.none+tierDist.甲+tierDist.乙+tierDist.丙);
+  [{k:'丙',label:'丙等',color:'#D4A843'},{k:'乙',label:'乙等',color:'#2E8B8B'},{k:'甲',label:'甲等',color:'#1A5C3A'},{k:'none',label:'挑戰中',color:'#4A4A4A'}].forEach(t=>{
+    const pct=Math.round((tierDist[t.k]||0)/tierTotal*100);
+    html+=`<div class="stats-bar-wrap"><div class="stats-bar-title"><span>${t.label}</span><span>${tierDist[t.k]||0}人 (${pct}%)</span></div><div class="stats-bar-bg"><div class="stats-bar-fg" style="width:${pct}%;background:${t.color}"></div></div></div>`;
+  });
+  html+=`</div>`;
+
+  // Top 5 leaderboard
+  if(topPlayers.length>0){
+    html+=`<div style="margin:8px 0 4px;font-size:10px;color:var(--gold-dark);font-family:var(--font-heading)">碎片排行榜</div>`;
+    const medals=['𓋹','𓂀','𓅃','',''];
+    topPlayers.slice(0,5).forEach((p,i)=>{
+      const isMe=p.name===S.name;
+      html+=`<div class="stats-rank" ${isMe?'style="background:rgba(212,168,67,.08);border-radius:6px"':''}>
+        <span class="rank-pos">${medals[i]||i+1}</span>
+        <span class="rank-name">${isMe?'<b>'+p.name+'</b> (你)':p.name}</span>
+        <span class="rank-count">${p.fragments} 碎片</span>
+      </div>`;
+    });
+  }
+
+  // Station completion rates (compact)
+  if(stationRates.length>0){
+    html+=`<div style="margin:8px 0 4px;font-size:10px;color:var(--gold-dark);font-family:var(--font-heading)">各站完成率</div>`;
+    stationRates.forEach(sr=>{
+      const pct=Math.round(sr.rate*100);
+      const countText=sr.count+'/'+(sr.total||totalPlayers)+'人';
+      html+=`<div class="stats-bar-wrap"><div class="stats-bar-title"><span style="font-size:9px">${sr.name}</span><span>${countText} (${pct}%)</span></div><div class="stats-bar-bg"><div class="stats-bar-fg" style="width:${pct}%;background:${pct>70?'#2E7D32':pct>40?'#D4A843':'#8B2500'}"></div></div></div>`;
+    });
+  }
+
+  html+=`<div class="stats-update">每 30 秒自動更新</div>`;
+  panel.innerHTML=html;
 }
 
 /* ============================================================
@@ -1075,7 +1406,11 @@ function starRate(cb){
 function showTyp(role='isis'){SFX.typeTick();const c=CHARS[role]||CHARS.isis;const d=document.createElement('div');d.className=`msg ${c.role}`;d.id='typ';d.innerHTML=`<div class="av">${c.av}</div><div class="bbl"><div class="typing"><span></span><span></span><span></span></div></div>`;chat.appendChild(d);scroll()}
 function hideTyp(){const e=$('typ');if(e)e.remove()}
 
-function say(role,text,delay=600){return new Promise(r=>{showTyp(role);setTimeout(()=>{hideTyp();msg(role,text);SFX.charSound(role);r()},delay)})}
+function say(role,text,delay){
+  // Auto-scale delay: base 800ms + 12ms per character, capped at 2500ms
+  if(!delay) delay=Math.min(2500, Math.max(800, 800 + text.length * 12));
+  return new Promise(r=>{showTyp(role);setTimeout(()=>{hideTyp();msg(role,text);SFX.charSound(role);r()},delay)});
+}
 
 /* ============================================================
    SETH MILESTONES
@@ -1086,9 +1421,18 @@ async function checkSeth(){
     S.sethDone[t]=true;save();
     SFX.sethAtmosphere();
     await new Promise(r=>setTimeout(r,600));
-    await say('isis','⋯⋯等等。祭司——氣溫驟降了。',400);
-    await say('seth',m.seth,1000);
-    await say('isis',m.isis,800);
+    await say('isis','⋯⋯等等。祭司——氣溫驟降了。');
+    await say('seth',m.seth);
+    await say('isis',m.isis);
+  }
+}
+
+async function checkGodMile(){
+  const t=total(),g=GOD_MILE[t];
+  if(g&&!S.sethDone['g'+t]){
+    S.sethDone['g'+t]=true;save();
+    await new Promise(r=>setTimeout(r,400));
+    await say(g.role,g.text);
   }
 }
 
@@ -1118,6 +1462,7 @@ async function autoCheckin(ckId){
   await playFragmentAnimation(st.frag);
   await say('isis',st.correct,800);
   await checkSeth();
+    await checkGodMile();
   await say('isis','碎片收入聖壇。繼續前進？',400);
   btns([{label:'繼續搜尋',action:'hub'},{label:'查看進度',action:'progress'}]);
   S.phase="result";
@@ -1129,23 +1474,97 @@ async function autoCheckin(ckId){
 async function startGame(){
   checkQRParam();
   renderTiers();
-  // Try local restore first
   if(loadLocal()&&S.name&&S.pin&&total()>0){
     renderTiers();
-    await say('isis',`祭司 ${S.name}，你回來了。結界仍在，碎片仍在等待。\n\n已收集 ${total()} 塊碎片。繼續你的任務。`,800);
+    await say('isis','祭司 '+S.name+'，你回來了。結界仍在，碎片仍在等待。\n\n已收集 '+total()+' 塊碎片。繼續你的任務。');
     if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){await autoCheckin(window._pendingCheckin);return}
     hub();return;
   }
   S.uid='P'+Date.now().toString(36).toUpperCase();
-  await say('isis','——你不該在這裡。\n\n你踏入的這片土地被古老咒術封鎖了三千年。空氣變得厚重，光線扭曲，時間開始以不同速度流動。\n\n你穿越了一道結界。',1200);
-  await say('isis','我是伊西斯。魔法的主人，王座的守護者。\n\n我的丈夫歐西里斯被他的弟弟賽特碎屍十四塊，碎片散落各處。三千年來，我的神力無法直接觸碰碎片——結界太強。\n\n然後你闖進來了。凡人的手不受結界限制。命運把你送到我面前。',1200);
-  await say('isis','你有兩個選擇：\n\n轉身離開——但結界已標記了你。\n\n或成為我的祭司。收集得越多，賽特越警覺。\n\n所以——快。準確。不要猶豫。\n\n你接受這個命運嗎？',800);
-  btns([{label:'我接受。',action:'accept'},{label:'⋯⋯這是什麼？',action:'explain'},{label:'🔄 恢復進度',action:'restore'}]);
+  playIntro();
+}
+
+function playIntro(){
+  const scenes=[
+    {chars:'𓋹',text:'三千年前<br>尼羅河畔的黃金時代'},
+    {chars:'𓁵',text:'<span class="highlight">歐西里斯</span><br>埃及最偉大的王<br><br>他教會人類農耕、觀星、釀造<br>他用知識，而非武力，統治大地'},
+    {chars:'𓁵 𓅃',text:'他的妻子 <span class="highlight">伊西斯</span><br>魔法的主人，王座的守護者<br><br>他們的孩子 <span class="highlight">阿努比斯</span><br>冥界的守門人'},
+    {chars:'𓃩',text:'但歐西里斯的弟弟<br><span class="highlight" style="color:#FF6B4A">賽特</span><br><br>嫉妒兄長被愛的方式<br>嫉妒到失去理智',style:'seth'},
+    {chars:'𓃩 ⚔ 𓁵',text:'賽特設下陷阱<br>殺害歐西里斯<br><span class="highlight" style="color:#FF6B4A">碎屍十四塊</span><br>散落到世界各處',style:'seth'},
+    {chars:'𓅃 𓁢',text:'伊西斯與阿努比斯<br>踏上了尋找碎片的旅途<br><br>三千年過去了<br>神的力量無法穿透結界'},
+    {chars:'𓀀',text:'然後——<br><br><span class="highlight">你出現了</span><br><br>凡人的手，不受結界限制<br>你是三千年來唯一的希望'}
+  ];
+  let idx=0;let musicStarted=false;
+  const ov=document.createElement('div');ov.className='intro-overlay';ov.id='introOverlay';
+  const skip=document.createElement('button');skip.className='intro-skip';skip.textContent='跳過 ▸▸';
+  skip.onclick=()=>{SFX.stopIntroMusic();ov.remove();afterIntro()};
+  ov.appendChild(skip);
+
+  function endIntro(){
+    SFX.stopIntroMusic();
+    ov.remove();
+    afterIntro();
+  }
+
+  function showScene(){
+    // Start music on first interaction
+    if(!musicStarted){musicStarted=true;SFX.introEpic()}
+    SFX.sceneHit(idx/scenes.length);// intensity builds
+
+    if(idx>=scenes.length){
+      ov.innerHTML='';
+      const final=document.createElement('div');final.className='intro-scene active';
+      final.innerHTML='<div class="intro-chars">𓋹</div><div class="intro-text"><span class="highlight">你接受這個命運嗎？</span></div><div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;width:80%;max-width:280px"><button class="qb" style="padding:12px" onclick="endIntro()">我接受。成為祭司。</button><button class="qb" style="padding:12px;opacity:.6" onclick="endIntro()">先看看再說</button></div>';
+      ov.appendChild(final);
+      // Expose endIntro globally for onclick
+      window.endIntro=endIntro;
+      return;
+    }
+    const sc=scenes[idx];
+    ov.querySelectorAll('.intro-scene').forEach(s=>s.classList.remove('active'));
+    const el=document.createElement('div');el.className='intro-scene';
+    const sethStyle=sc.style==='seth'?'filter:drop-shadow(0 0 20px rgba(139,37,0,.6))':'';
+    el.innerHTML='<div class="intro-chars" style="'+sethStyle+'">'+sc.chars+'</div><div class="intro-divider"></div><div class="intro-text">'+sc.text+'</div><div class="intro-tap">輕觸繼續</div>';
+    ov.appendChild(el);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('active')));
+    // Character-specific sounds on top of the music
+    if(sc.style==='seth')SFX.charSound('seth');
+    else if(idx===1||idx===2)SFX.charSound('osiris');
+    else if(idx===5)SFX.charSound('isis');
+    idx++;
+  }
+  ov.addEventListener('click',(e)=>{if(e.target.closest('.intro-skip')||e.target.closest('.qb'))return;showScene()});
+  document.body.appendChild(ov);
+  setTimeout(showScene,800);
+}
+
+function afterIntro(){
+  // Show explain/restore as small links at bottom, main flow continues with identity
+  askIdentity();
+}
+
+async function askIdentity(){
+  S.phase="identity";
+  await say('isis','在你踏上旅途之前——告訴我，你是什麼身份的旅人？');
+  surveyOpts(["國中生","高中生","大學生","本系在學生","系友","其他"],a=>{
+    S.identity=a;msg('player',a);askChildren();
+  });
+  // Also show restore option for returning players
+  const restoreHint=document.createElement('div');
+  restoreHint.style.cssText='text-align:center;margin:8px 0;animation:msgIn .4s ease';
+  restoreHint.innerHTML='<button style="background:none;border:none;color:var(--gold-dark);font-size:11px;cursor:pointer;font-family:var(--font-body);text-decoration:underline" onclick="this.parentElement.remove();startRestore()">已經玩過？恢復進度</button>';
+  chat.appendChild(restoreHint);scroll();
+}
+
+async function askChildren(){
+  S.phase="children";
+  await say('isis','你身邊是否有 12 歲以下的孩童同行？\n\n（每台裝置限 1 位玩家＋最多 2 位 12 歲以下孩童一起遊玩）');
+  btns([{label:'沒有，只有我',action:'child0'},{label:'1 位孩童',action:'child1'},{label:'2 位孩童',action:'child2'}]);
 }
 
 async function askName(){
   S.phase="naming";
-  await say('isis','很好。告訴我，你叫什麼名字？\n\n（輸入你的名字或暱稱）',500);
+  await say('isis','很好。告訴我，你叫什麼名字？\n\n（輸入你的名字或暱稱）');
 }
 
 async function askPin(){
@@ -1177,10 +1596,12 @@ async function doRestore(){
       // Restore state from cloud
       S.completed = result.completed || {};
       S.sethDone = result.sethDone || {};
-      S.redeemed = result.redeemed || false;
+      S.redeemed = result.redeemed || "";
       S.puzzleUnlocked = result.puzzleUnlocked || false;
       S.uid = result.uid || S.uid;
       S.surveyAns = result.surveyAns || {};
+      S.identity = result.identity || "";
+      S.childCount = result.childCount || 0;
       save();
       renderTiers();
       await say('isis',`祭司 ${S.name}——你回來了。我在結界中保留了你的記錄。\n\n已恢復 ${total()} 塊碎片的進度。繼續你的任務。`,800);
@@ -1200,6 +1621,8 @@ async function doRestore(){
 async function hub(){
   S.phase="hub";S.cur=null;save();
   const t=tier();
+  // Render live stats panel first
+  renderStatsPanel();
   await say('isis','選擇目標區域。',300);
   const b=[
     {label:`🏛 實驗室 (${cnt('lab')}/7)`,action:'cat',cat:'lab',cls:'st'},
@@ -1209,7 +1632,11 @@ async function hub(){
     {label:'📷 掃描打卡',action:'scan'},
     {label:'📊 進度',action:'progress'}
   ];
-  if(t)b.push({label:'🏆 兌換獎勵',action:'redeem'});
+  // Show redeem if current tier is higher than redeemed tier (or not redeemed at all)
+  const tierRank={甲:1,乙:2,丙:3};
+  const curRank=tierRank[t]||0;
+  const redRank=tierRank[S.redeemed]||0;
+  if(t && curRank>redRank)b.push({label:S.redeemed?'⬆️ 升級獎勵':'🏆 兌換獎勵',action:'redeem'});
   if(S.puzzleUnlocked)b.push({label:'🧩 託特的試煉場',action:'puzzle'});
   btns(b);
 }
@@ -1298,15 +1725,18 @@ async function startSt(sid){
   const st=STATIONS.find(s=>s.id===sid);if(!st)return;
   S.cur=st;S.phase="answering";save();
   SFX.whoosh();
-  await say('isis',`你來到了【${st.name}】。\n\n${st.arrive}`,800);
-  await say('isis',st.q,400);
+  await say('isis',`你來到了【${st.name}】。\n\n${st.arrive}`);
+  await say('isis',st.q);
+  btns([{label:'← 放棄此題，返回選單',action:'hub'}]);
 }
 
 async function checkAns(input){
   const st=S.cur;if(!st)return;
   const t=input.trim();
   if(['提示','hint','幫助'].includes(t.toLowerCase())){
-    await say('thoth',`𓁟 託特的低語：\n${st.hint}`,500);return;
+    await say('thoth',`𓁟 託特的低語：\n${st.hint}`);
+    btns([{label:'← 放棄此題，返回選單',action:'hub'}]);
+    return;
   }
   if(h(t)===st.ansHash || h(t.toUpperCase())===st.ansHash || h(t.toLowerCase())===st.ansHash || h(t.replace(/\s+/g,''))===st.ansHash || h(t.toUpperCase().replace(/\s+/g,''))===st.ansHash){
     S.completed[st.id]=true;renderTiers();save();
@@ -1316,12 +1746,14 @@ async function checkAns(input){
     // Special character appearance
     if(st.specialChar){await say(st.specialChar,st.specialLine,800)}
     await checkSeth();
+    await checkGodMile();
     await say('isis','碎片收入聖壇。繼續前進？',400);
     btns([{label:'繼續搜尋',action:'hub'},{label:'查看進度',action:'progress'}]);
     S.phase="result";
   } else {
-    await say('isis','不⋯⋯答案不對。賽特的迷霧遮蔽了你。再試一次，或輸入「提示」。',500);
+    await say('isis','不⋯⋯答案不對。賽特的迷霧遮蔽了你。再試一次，或輸入「提示」。');
     SFX.wrongAnswer();
+    btns([{label:'← 放棄此題，返回選單',action:'hub'}]);
   }
 }
 
@@ -1329,28 +1761,62 @@ async function showProgress(){
   const l=cnt("lab"),e=cnt("exhibit"),c=cnt("checkin"),b=cnt("bonus"),t=tier();
   let txt=`碎片回收狀態：\n\n🏛 實驗室：${l}/7\n📜 系展：${e}/3\n📍 打卡：${c}/4\n💀 魔王關：${b}/1\n\n`;
   txt+=`── 獎勵進度 ──\n`;
-  txt+=`甲等（${TIERS.甲.reward}）：實驗室${l}/${TIERS.甲.lab} | 系展${e}/${TIERS.甲.exhibit} | 打卡${c}/${TIERS.甲.checkin} → ${l>=TIERS.甲.lab&&e>=TIERS.甲.exhibit&&c>=TIERS.甲.checkin?'✓ 達成':'✗ 未達成'}\n`;
-  txt+=`乙等（${TIERS.乙.reward}）：實驗室${l}/${TIERS.乙.lab} | 系展${e}/${TIERS.乙.exhibit} | 打卡${c}/${TIERS.乙.checkin} → ${l>=TIERS.乙.lab&&e>=TIERS.乙.exhibit&&c>=TIERS.乙.checkin?'✓ 達成':'✗ 未達成'}\n`;
-  txt+=`丙等（${TIERS.丙.reward}）：同乙等 + 魔王關${b}/${TIERS.丙.bonus} → ${t==='丙'?'✓ 達成':'✗ 未達成'}`;
-  await say('isis',txt,500);
-  btns([{label:'繼續搜尋',action:'hub'},...(t?[{label:'🏆 兌換獎勵',action:'redeem'}]:[])]);
+  const redeemed=S.redeemed;
+  function tierLine(name,reqs,extraReq){
+    const met=cnt('lab')>=reqs.lab&&cnt('exhibit')>=reqs.exhibit&&cnt('checkin')>=reqs.checkin&&(!reqs.bonus||cnt('bonus')>=reqs.bonus);
+    const rd=redeemed===name;
+    let status=met?'✓ 達成':'✗ 未達成';
+    if(rd)status='✓ 已兌換';
+    return `${name}等（${TIERS[name].reward}）：實驗室${l}/${reqs.lab} | 系展${e}/${reqs.exhibit} | 打卡${c}/${reqs.checkin}${reqs.bonus?' | 魔王'+b+'/'+reqs.bonus:''} → ${status}`;
+  }
+  txt+=tierLine('甲',TIERS.甲)+'\n';
+  txt+=tierLine('乙',TIERS.乙)+'\n';
+  txt+=tierLine('丙',TIERS.丙);
+  if(redeemed)txt+=`\n\n目前已兌換：【${redeemed}等】`;
+  await say('isis',txt);
+  const tierRank={甲:1,乙:2,丙:3};
+  const canUpgrade=t&&(tierRank[t]||0)>(tierRank[redeemed]||0);
+  btns([{label:'← 返回',action:'hub'},...(canUpgrade?[{label:redeemed?'⬆️ 升級獎勵':'🏆 兌換獎勵',action:'redeem'}]:[])]);
 }
 
 /* ============================================================
    SURVEY + REDEMPTION
    ============================================================ */
 async function startSurvey(){
-  if(S.redeemed){await say('isis',`你已經兌換過獎勵了，祭司。每人限兌換一次。\n\n${S.puzzleUnlocked?'但託特的試煉場仍然開放。':''}`,500);btns([{label:'返回',action:'hub'}]);return}
+  const t=tier();
+  if(!t){await say('isis','你還未達成任何獎勵等級。繼續收集碎片吧。');btns([{label:'← 返回',action:'hub'}]);return}
+  // Already redeemed at this tier or higher
+  const tierRank={甲:1,乙:2,丙:3};
+  const currentRank=tierRank[t]||0;
+  const redeemedRank=tierRank[S.redeemed]||0;
+  if(redeemedRank>=currentRank){
+    await say('isis',`你已兌換過【${S.redeemed}等】獎勵。目前等級仍是【${t}等】——需要達成更高等級才能再次兌換。\n\n${S.puzzleUnlocked?'託特的試煉場仍然開放。':'繼續收集碎片來提升等級吧。'}`);
+    btns([{label:'← 返回',action:'hub'},...(S.puzzleUnlocked?[{label:'🧩 託特的試煉場',action:'puzzle'}]:[])]);
+    return;
+  }
+  // Can upgrade! Skip survey if already done once
+  if(S.redeemed){
+    // Upgrading from lower tier
+    await say('isis',`祭司，你的努力超越了【${S.redeemed}等】的範圍。你現在有資格升級到【${t}等】！`);
+    showUpgradeOverlay(t);
+    return;
+  }
+  // First time redemption — do survey
   S.phase="survey";S.surveyStep=0;S.surveyAns={};
-  await say('isis','在授予祝福前——神殿需要記錄。回答幾個問題，這是儀式的一部分。',500);
+  await say('isis','在授予祝福前——神殿需要記錄。回答幾個問題，這是儀式的一部分。');
   askSQ();
 }
 async function askSQ(){
   const q=SURVEY[S.surveyStep];
   if(!q){finishSurvey();return}
-  await say('isis',q.text,400);
+  await say('isis',q.text);
   if(q.opts)surveyOpts(q.opts,a=>handleSA(q.id,a));
   else if(q.type==='stars')starRate(n=>handleSA(q.id,n+'星'));
+  else if(q.stationPick){
+    const names=STATION_NAMES();
+    const allOpts=q.extraOpt?[...names,q.extraOpt]:names;
+    surveyOpts(allOpts,a=>handleSA(q.id,a));
+  }
   // free text handled in handleSend
 }
 async function handleSA(qid,ans){
@@ -1359,7 +1825,7 @@ async function handleSA(qid,ans){
   else finishSurvey();
 }
 async function finishSurvey(){
-  sheet('survey',{answers:S.surveyAns});
+  sheet('survey',{answers:S.surveyAns,identity:S.identity,childCount:S.childCount});
   const t=tier();
   const ending=ENDINGS[t]||ENDINGS.甲;
   await say('isis','⋯⋯記錄完成。',400);
@@ -1383,37 +1849,80 @@ async function finishSurvey(){
 }
 
 function showPinOverlay(t){
+  const tierRank={甲:1,乙:2,丙:3};
+  const isUpgrade=!!S.redeemed;
+  const prev=S.redeemed;
+  let rewardText=TIERS[t].reward;
+  if(isUpgrade){
+    if(prev==='甲'&&t==='乙')rewardText='升級乙等 — 小禮物已領，Ａ區抽抽樂乙次';
+    else if(prev==='甲'&&t==='丙')rewardText='升級丙等 — 小禮物已領，Ａ＆Ｂ區抽抽樂各乙次';
+    else if(prev==='乙'&&t==='丙')rewardText='升級丙等 — 小禮物＆Ａ區已領，Ｂ區抽抽樂乙次';
+  }
+  // Generate unique redemption code: tier + timestamp short hash
+  const redeemCode=t+'-'+Date.now().toString(36).toUpperCase().slice(-6);
   const o=document.createElement('div');o.className='pin-overlay';o.id='pinOverlay';
   o.innerHTML=`<div class="pin-card">
     <h3>𓁢 工作人員驗證</h3>
-    <p>玩家：${S.name} (${S.uid})<br>達成等級：【${t}等】<br>獎勵：${TIERS[t].reward}<br><br>請工作人員輸入 PIN 碼確認兌獎：</p>
-    <input type="password" id="pinInput" maxlength="6" placeholder="PIN">
+    <p style="font-size:11px;line-height:1.6">
+      玩家：${S.name} (${S.uid})<br>
+      ${isUpgrade?'升級前等級：【'+prev+'等】→ ':''}達成等級：【${t}等】<br>
+      獎勵：${rewardText}<br>
+      兌獎編號：<span style="font-family:var(--font-heading);color:var(--gold);font-size:14px;letter-spacing:2px">${redeemCode}</span><br>
+      ${S.childCount>0?'同行孩童：'+S.childCount+'位<br>':''}
+      <br>
+      📍 兌獎地點：圖書館地下室<br>（系展與地科大未來前）服務台
+    </p>
+    <div style="margin:12px 0;padding:10px;border:1px solid rgba(212,168,67,.2);border-radius:12px;background:rgba(0,0,0,.2)">
+      <p style="font-size:11px;color:var(--sand);margin-bottom:8px">兌獎前請先按讚我們的 Facebook 粉專：</p>
+      <button class="pin-btn" style="width:100%;margin-bottom:6px;background:rgba(66,103,178,.2);border-color:rgba(66,103,178,.5);color:#8b9dc3" onclick="window.open('https://www.facebook.com/NTNUEO','_blank')">前往 Facebook 粉專按讚</button>
+      <button class="pin-btn" id="followBtn" style="width:100%;opacity:.5;pointer-events:none" onclick="confirmFollow()">☐ 我已按讚</button>
+    </div>
+    <p style="font-size:10px;color:var(--gold-dark);margin-bottom:8px">請工作人員輸入 PIN 碼確認${isUpgrade?'升級':'兌獎'}：</p>
+    <input type="password" id="pinInput" maxlength="6" placeholder="PIN" disabled>
     <div class="pin-btns">
       <button class="pin-btn" onclick="closePinOverlay()">取消</button>
-      <button class="pin-btn confirm" onclick="verifyPin('${t}')">確認兌獎</button>
+      <button class="pin-btn confirm" id="redeemBtn" onclick="verifyPin('${t}','${redeemCode}','${rewardText.replace(/'/g,"\\'")}')" disabled>確認${isUpgrade?'升級':'兌獎'}</button>
     </div>
     <div class="pin-err" id="pinErr"></div>
   </div>`;
   document.body.appendChild(o);
-  $('pinInput').focus();
+  // Enable follow button after 2 seconds (gives time to click FB link)
+  setTimeout(()=>{const fb=$('followBtn');if(fb){fb.style.opacity='1';fb.style.pointerEvents='auto'}},2000);
 }
+
+function confirmFollow(){
+  S.followConfirmed=true;
+  const fb=$('followBtn');if(fb){fb.textContent='☑ 已按讚';fb.style.opacity='.6';fb.style.pointerEvents='none';fb.style.borderColor='var(--scarab)';fb.style.color='#6BCB8B'}
+  const pi=$('pinInput');if(pi)pi.disabled=false;
+  const rb=$('redeemBtn');if(rb)rb.disabled=false;
+  pi.focus();
+}
+
+function showUpgradeOverlay(t){showPinOverlay(t)}
 
 function closePinOverlay(){
   const o=$('pinOverlay');if(o)o.remove();
-  say('isis','兌獎已取消。你可以稍後再來。',400).then(()=>{btns([{label:'返回',action:'hub'}])});
+  say('isis','兌獎已取消。你可以稍後再來。').then(()=>{btns([{label:'← 返回',action:'hub'}])});
 }
 
-function verifyPin(t){
+function verifyPin(t,redeemCode,rewardText){
   const pin=$('pinInput').value;
   if(pin===STAFF_PIN){
-    S.redeemed=true;S.puzzleUnlocked=true;save();
-    sheet('redeem',{tier:t,reward:TIERS[t].reward});
+    const isUpgrade=!!S.redeemed;
+    S.redeemed=t;S.puzzleUnlocked=true;save();
+    sheet('redeem',{tier:t,reward:rewardText||TIERS[t].reward,redeemCode:redeemCode,upgrade:isUpgrade,childCount:S.childCount,identity:S.identity});
     const o=$('pinOverlay');if(o)o.remove();
-    say('anubis',`✓ 驗證成功。【${t}等】獎勵已確認發放。\n\n祭司 ${S.name}，你的旅程記錄已刻入神殿石碑。`,600).then(()=>{
-      say('thoth',`祭司，我是託特——智慧與文字之神。\n\n你的儀式已完成，但如果你渴望更多挑戰⋯⋯我的試煉場已為你開啟。\n\n那裡有拼圖、密碼、記憶考驗和知識問答。純粹的智慧較量，沒有獎勵——只有榮耀。`,800).then(()=>{
-        btns([{label:'🧩 進入託特的試煉場',action:'puzzle'},{label:'結束旅程',action:'end'}]);
+    if(isUpgrade){
+      say('anubis',`✓ 升級成功！【${t}等】獎勵已確認。\n\n祭司 ${S.name}，你的神殿石碑已更新。`).then(()=>{
+        btns([{label:'繼續搜尋',action:'hub'},{label:'🧩 託特的試煉場',action:'puzzle'}]);
       });
-    });
+    } else {
+      say('anubis',`✓ 驗證成功。【${t}等】獎勵已確認發放。\n\n祭司 ${S.name}，你的旅程記錄已刻入神殿石碑。`).then(()=>{
+        say('thoth',`祭司，我是託特——智慧與文字之神。\n\n你的儀式已完成，但如果你渴望更多挑戰⋯⋯我的試煉場已為你開啟。\n\n那裡有拼圖、密碼、記憶考驗和知識問答。純粹的智慧較量，沒有獎勵——只有榮耀。`).then(()=>{
+          btns([{label:'🧩 進入託特的試煉場',action:'puzzle'},{label:'繼續搜尋',action:'hub'},{label:'結束旅程',action:'end'}]);
+        });
+      });
+    }
     showComp(t);
   } else {
     $('pinErr').textContent='PIN 碼錯誤，請重試';
@@ -1439,13 +1948,184 @@ function openPuzzles(){
     <h2>𓁟 託特的試煉場</h2>
   </div>
   <div class="pz-content">
-    <p style="text-align:center;color:var(--sand);font-size:12px;margin-bottom:16px">純粹的智慧較量。沒有獎勵——只有榮耀。</p>
+    <p style="text-align:center;color:var(--sand);font-size:12px;margin-bottom:16px">探索你的地球科學靈魂。</p>
+    <div class="pz-card"><h3>🌍 地科靈魂測驗</h3><p>託特將測試你的內在特質——你最適合哪個地球科學領域？</p><button class="pz-btn" onclick="startPersonality()">開始測驗</button></div>
     <div class="pz-card"><h3>🧩 歐西里斯拼圖</h3><p>在記憶中重組歐西里斯的碎片</p><button class="pz-btn" onclick="startMemory()">開始挑戰</button></div>
     <div class="pz-card"><h3>𓀀 象形文字密碼</h3><p>破解古老的象形文字密碼</p><button class="pz-btn" onclick="startCipher()">開始挑戰</button></div>
     <div class="pz-card"><h3>📚 眾神知識問答</h3><p>考驗你對埃及神話與地球科學的了解</p><button class="pz-btn" onclick="startQuiz()">開始挑戰</button></div>
+    <div class="pz-card" style="border-color:var(--anubis-purple);border-style:dashed"><h3 style="color:#B39DDB">𓁢 阿努比斯的密室</h3><p style="color:var(--sand);opacity:.7">${total()>=STATIONS.length?'碎片全數收齊。密室的門為你打開了。':'「收齊所有碎片的人，才有資格進入。」<br>（'+total()+'/'+STATIONS.length+'）'}</p>${total()>=STATIONS.length?'<button class="pz-btn" style="border-color:var(--anubis-purple)" onclick="showAnubisChamber()">進入密室</button>':'<div style="text-align:center;margin-top:8px"><span style="font-size:24px;opacity:.3">🔒</span></div>'}</div>
   </div>`;
 }
 function closePuzzles(){$('puzzleScreen').style.display='none'}
+
+// ── Easter Egg: Hidden interactions ──
+// 1. Anubis chamber unlocks when ALL fragments collected
+// 2. Tapping header ankh 5 times triggers Thoth secret
+// 3. Typing "荷魯斯" in answer box at hub triggers hidden dialogue
+let _ankhTaps=0,_ankhTimer=null;
+function initEasterEggs(){
+  const h1=document.querySelector('.header h1');
+  if(h1)h1.addEventListener('click',()=>{
+    _ankhTaps++;clearTimeout(_ankhTimer);
+    _ankhTimer=setTimeout(()=>{_ankhTaps=0},2000);
+    if(_ankhTaps>=5){
+      _ankhTaps=0;
+      SFX.charSound('thoth');
+      say('thoth','𓁟 你發現了隱藏的觸發點。\n\n很少有人注意到標題上的安卡符號。在古埃及，安卡是「生命之鑰」——每一個神都持有它。\n\n你的觀察力⋯⋯讓我想起年輕時的歐西里斯。他也總是注意到別人忽略的東西。\n\n這是託特給你的小禮物：在遊戲中任何時候輸入「託特的秘密」，我會告訴你一個沒人知道的故事。');
+    }
+  });
+}
+
+function checkEaster(){
+  const v=($('easterInput')?$('easterInput').value:'').trim();
+  if(total()>=STATIONS.length){
+    showAnubisChamber();
+  } else if(v){
+    const inp=$('easterInput');if(inp){inp.value='';inp.placeholder='碎片尚未收齊⋯⋯（'+total()+'/'+STATIONS.length+'）'}
+  }
+}
+
+function showAnubisChamber(){
+  const pz=$('puzzleScreen');
+  pz.querySelector('.pz-content').innerHTML=`
+    <div class="pz-card" style="border-color:var(--anubis-purple);padding:24px">
+      <h3 style="color:#B39DDB;font-size:16px">𓁢 阿努比斯的密室</h3>
+      <div style="font-size:40px;margin:16px 0;filter:drop-shadow(0 0 16px rgba(74,45,107,.5))">𓁢</div>
+      <div style="color:var(--papyrus);font-size:13px;line-height:1.9;text-align:left;margin:12px 0">
+        你收集了所有碎片。密室的門自動為你打開。<br><br>
+        我是阿努比斯。歐西里斯與伊西斯的孩子。<br><br>
+        我父親的故事，大多數人只記住了「被弟弟殺害」。但他們不知道——<br><br>
+        <span style="color:var(--gold)">歐西里斯教會了人類農耕。</span>他走遍尼羅河谷，不是用武力征服，而是用知識。他教人種植大麥、釀造啤酒、觀測星象以預測洪水。<br><br>
+        賽特嫉妒的不是王位——<span style="color:#FF6B4A">是他被愛的方式。</span><br><br>
+        而我繼承了父親最重要的遺產：<span style="color:var(--gold)">用知識守護眾生。</span><br><br>
+        你今天做的事——回答每一道地球科學的問題——本質上和歐西里斯三千年前做的一樣。把知識傳遞下去。<br><br>
+        <span style="color:#B39DDB">𓁢 你的名字已被刻入永恆的石碑。這不是結束——這是開始。</span>
+      </div>
+      <button class="pz-btn" style="margin-top:12px;border-color:var(--anubis-purple)" onclick="openPuzzles()">← 返回試煉場</button>
+    </div>`;
+}
+
+// ── Personality Test: 地科靈魂測驗 (immersive scenario) ──
+function startPersonality(){
+  const scenarios=[
+    {visual:'🌋',scene:'你站在一座活火山的邊緣。腳下的地面微微震動，空氣中帶著硫磺味。你往下看——',
+      opts:[
+        {text:'盯著岩漿的流動紋路，想知道它的成分',scores:{geo:3,seis:1}},
+        {text:'感受腳下的震動，推算下次噴發的時間',scores:{seis:3,geo:1}},
+        {text:'抬頭看火山灰怎麼影響天空的顏色',scores:{atmo:3,geo:1}},
+        {text:'想像這座火山如果在外星球上會長什麼樣子',scores:{astro:3,seis:1}}
+      ]},
+    {visual:'🌊',scene:'深夜，你獨自站在海邊。月光在海面上拉出一條銀色的路。遠處有什麼東西在閃爍——',
+      opts:[
+        {text:'走進水裡，想摸到海底的沙層和岩石',scores:{geo:2,ocean:2}},
+        {text:'計算潮汐的週期，推測明天的海況',scores:{ocean:3,atmo:1}},
+        {text:'觀察海面上方的雲層和風向',scores:{atmo:3,ocean:1}},
+        {text:'抬頭找那顆和月亮一起影響潮汐的星',scores:{astro:3,ocean:1}}
+      ]},
+    {visual:'⚡',scene:'暴風雨來了。窗外電閃雷鳴，雨水像瀑布一樣傾瀉。你的第一個念頭是——',
+      opts:[
+        {text:'「這場雨會不會引發土石流？地質條件夠穩嗎？」',scores:{geo:3,seis:1}},
+        {text:'「剛才那道閃電引起的電磁波，地震儀會記錄到嗎？」',scores:{seis:3,atmo:1}},
+        {text:'「這個對流系統的結構真美——積雨雲的頂部應該到了平流層」',scores:{atmo:3}},
+        {text:'「木星上的大紅斑暴風持續了三百年，不知道是什麼感覺」',scores:{astro:2,atmo:2}}
+      ]},
+    {visual:'🔭',scene:'你獲得了一台時光機，但只能用一次。你選擇去——',
+      opts:[
+        {text:'45 億年前，看地球從一團熔岩變成有海洋的行星',scores:{geo:3,ocean:1}},
+        {text:'2011 年 3 月 11 日，日本外海，觀測那場地震的全過程',scores:{seis:3}},
+        {text:'6600 萬年前，親眼看小行星撞擊後的「核冬天」',scores:{atmo:2,astro:2}},
+        {text:'138 億年前，宇宙大爆炸的第一秒',scores:{astro:3}}
+      ]},
+    {visual:'🗺️',scene:'你被派去一個無人島做研究，只能帶一項設備——',
+      opts:[
+        {text:'地質錘和放大鏡',scores:{geo:3}},
+        {text:'攜帶型地震儀',scores:{seis:3}},
+        {text:'氣象觀測站',scores:{atmo:3}},
+        {text:'水下聲納探測器',scores:{ocean:3}}
+      ]},
+    {visual:'💀',scene:'賽特突然出現在你面前。他說：「告訴我，你最害怕失去什麼？」',
+      opts:[
+        {text:'「腳下的土地——沒有穩固的大地，一切都會崩塌」',scores:{geo:3,seis:1}},
+        {text:'「預警的時間——如果地震來了卻沒有人知道」',scores:{seis:3}},
+        {text:'「呼吸的空氣——大氣層是我們唯一的保護罩」',scores:{atmo:3}},
+        {text:'「頭頂的星空——如果永遠看不到星星，我會瘋掉」',scores:{astro:3}}
+      ]}
+  ];
+
+  const results={
+    geo:{title:'🪨 地質與礦物學',emoji:'🪨',color:'#A07830',
+      desc:'你的靈魂屬於大地的最深處。你看世界的方式，是從億萬年的時間尺度出發——每一塊岩石都是一本書，每一條斷層都是一個故事。',
+      trait:'你是那種會在路邊撿石頭然後興奮地解釋它成因的人。',
+      god:'𓁵 歐西里斯——大地之王——認可了你。「守護大地的人，終將被大地守護。」'},
+    seis:{title:'🌊 地震與地球物理',emoji:'🌊',color:'#2E8B8B',
+      desc:'你的靈魂與看不見的力量共振。別人感覺不到的微小震動，對你來說是大地在說話。你追求的不是表面的現象，而是隱藏在地底的真相。',
+      trait:'你是那種地震來時第一反應是看震度報告的人。',
+      god:'𓁢 阿努比斯——感知冥界震動的神——認可了你。「能聽見大地心跳的人，不會被黑暗吞噬。」'},
+    ocean:{title:'🐚 海洋科學',emoji:'🐚',color:'#1B6B5A',
+      desc:'你的靈魂屬於那片覆蓋地球 71% 的藍色領域。潮汐的節奏就是你的心跳。你知道海洋不只是水——它是一個活的、呼吸的系統。',
+      trait:'你是那種看到海就走不動、一定要把腳伸進水裡的人。',
+      god:'𓅃 伊西斯——尼羅河的守護者——認可了你。「海洋記住一切。而你，會替它說出來。」'},
+    atmo:{title:'☁️ 大氣與氣候科學',emoji:'☁️',color:'#4A6B8B',
+      desc:'你的靈魂在天空中飛翔。你看雲不只是看形狀——你看的是大氣的情緒、氣壓的對話、水循環的史詩。這個世界的天氣，在你眼中是一首不斷變奏的交響曲。',
+      trait:'你是那種出門前一定看天氣預報、而且會批評預報不準的人。',
+      god:'𓁟 託特——觀測萬物的智慧之神——認可了你。「讀懂天空的人，讀懂了世界的語言。」'},
+    astro:{title:'✨ 天文與行星科學',emoji:'✨',color:'#4A2D6B',
+      desc:'你的靈魂不屬於地球——或者說，它同時屬於所有地方。138 億年的宇宙史在你腦中是一條可以來回走動的時間線。別人抬頭看星星覺得美，你抬頭看星星覺得回家。',
+      trait:'你是那種半夜爬起來看流星雨然後隔天考試遲到的人。',
+      god:'☀️ 拉——太陽神——認可了你。「望向深空的人，終將觸碰永恆。」'}
+  };
+
+  let idx=0;
+  const scores={geo:0,seis:0,ocean:0,atmo:0,astro:0};
+  const pz=$('puzzleScreen');
+
+  function showPQ(){
+    if(idx>=scenarios.length){showResult();return}
+    const sc=scenarios[idx];
+    pz.querySelector('.pz-content').innerHTML=`
+      <div class="pt-scene">
+        <div style="font-size:10px;color:var(--gold-dark);font-family:var(--font-heading)">場景 ${idx+1}/${scenarios.length}</div>
+        <div class="pt-visual">${sc.visual}</div>
+        <div class="pt-q">${sc.scene}</div>
+        ${sc.opts.map((o,i)=>`<button class="pt-opt" onclick="pickPersonality(${idx},${i})">${o.text}</button>`).join('')}
+      </div>`;
+  }
+
+  function showResult(){
+    let maxField='geo',maxScore=0;
+    for(const[k,v]of Object.entries(scores)){if(v>maxScore){maxScore=v;maxField=k}}
+    const r=results[maxField];
+    const maxPossible=scenarios.length*3;
+    pz.querySelector('.pz-content').innerHTML=`
+      <div class="pt-result">
+        <div style="font-size:56px;filter:drop-shadow(0 0 20px ${r.color}80);margin-bottom:8px">${r.emoji}</div>
+        <div class="pt-field">${r.title}</div>
+        <div class="pt-god">${r.god}</div>
+        <div style="margin:20px 0;padding:16px;background:rgba(0,0,0,.3);border-radius:14px;text-align:left">
+          <p style="font-size:13px;color:var(--papyrus);line-height:1.7;margin-bottom:10px">${r.desc}</p>
+          <p style="font-size:12px;color:var(--gold-dark);font-style:italic">${r.trait}</p>
+        </div>
+        <div style="margin:16px 0">
+          ${Object.entries({geo:'🪨 地質',seis:'🌊 地物',ocean:'🐚 海科',atmo:'☁️ 大氣',astro:'✨ 天文'}).map(([k,label])=>{
+            const pct=Math.round((scores[k]/maxPossible)*100);
+            const colors={geo:'#A07830',seis:'#2E8B8B',ocean:'#1B6B5A',atmo:'#4A6B8B',astro:'#4A2D6B'};
+            return `<div class="pt-bar-row"><span class="pt-bar-label">${label}</span><div class="pt-bar"><div class="pt-bar-fill" style="width:${pct}%;background:${colors[k]}"></div></div><span style="width:30px">${scores[k]}</span></div>`;
+          }).join('')}
+        </div>
+        <button class="pz-btn" style="margin-top:12px" onclick="openPuzzles()">← 返回試煉場</button>
+      </div>`;
+  }
+
+  window.pickPersonality=function(qi,oi){
+    const opt=scenarios[qi].opts[oi];
+    for(const[k,v]of Object.entries(opt.scores||{}))scores[k]=(scores[k]||0)+v;
+    idx++;
+    // Brief transition
+    pz.querySelector('.pz-content').innerHTML='<div style="text-align:center;padding:40px"><div class="typing"><span></span><span></span><span></span></div></div>';
+    setTimeout(showPQ,500);
+  };
+  showPQ();
+}
 
 // ── Memory Match Game ──
 function startMemory(){
@@ -1557,8 +2237,11 @@ function startQuiz(){
    ============================================================ */
 async function btnClick(b){
   switch(b.action){
-    case 'accept':msg('player','我接受。');await say('isis','很好⋯⋯我在你身上看到了不該存在於凡人眼中的東西。',500);askName();break;
-    case 'explain':msg('player','⋯⋯這是什麼？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展3站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。',800);btns([{label:'我接受。',action:'accept'},{label:'🔄 恢復進度',action:'restore'}]);break;
+    case 'accept':msg('player','我接受。');await say('isis','很好⋯⋯我在你身上看到了不該存在於凡人眼中的東西。');askIdentity();break;
+    case 'explain':msg('player','⋯⋯這是什麼活動？');await say('isis','「脈動｜SIGNALS」實境解謎。前往各站點解謎收集歐西里斯的碎片。\n\n🏛 實驗室7站 📜 系展3站 📍 打卡4處 💀 魔王關1關\n\n完成不同數量獲不同獎勵。\n\n兌獎地點：圖書館地下室（系展與地科大未來前）服務台');btns([{label:'我接受。',action:'accept'},{label:'🔄 恢復進度',action:'restore'}]);break;
+    case 'child0':msg('player','只有我');S.childCount=0;askName();break;
+    case 'child1':msg('player','1 位孩童');S.childCount=1;askName();break;
+    case 'child2':msg('player','2 位孩童');S.childCount=2;askName();break;
     case 'restore':msg('player','我之前來過');startRestore();break;
     case 'cat':msg('player',{lab:'前往實驗室',exhibit:'前往系展',checkin:'前往打卡點',bonus:'挑戰魔王關'}[b.cat]);showCat(b.cat);break;
     case 'scan':msg('player','掃描打卡 QR Code');openQRScanner();break;
@@ -1567,12 +2250,17 @@ async function btnClick(b){
     case 'progress':msg('player','查看進度');showProgress();break;
     case 'redeem':msg('player','兌換獎勵');startSurvey();break;
     case 'puzzle':openPuzzles();break;
-    case 'end':msg('player','結束旅程');await say('isis','願你在結界之外的世界，也能記住今天的選擇。\n\n𓋹 再見，祭司。𓋹',600);break;
+    case 'end':msg('player','結束旅程');await say('isis','願你在結界之外的世界，也能記住今天的選擇。\n\n𓋹 再見，祭司。𓋹');await say('anubis','願冥界的安寧守護你的歸途。');S.phase='ended';btns([{label:'🔄 重新開始',action:'restart'}]);break;
+    case 'restart':location.reload();break;
   }
 }
 
 function handleSend(){
   const t=inp.value.trim();if(!t)return;inp.value='';msg('player',t);
+  // ── Ended: block all input ──
+  if(S.phase==='ended'){
+    say('isis','旅程已結束。刷新頁面可重新開始。');return;
+  }
   // ── New player: set name ──
   if(S.phase==='naming'){
     S.name=t;renderTiers();
@@ -1584,7 +2272,7 @@ function handleSend(){
       say('isis','祭司印記必須是 4 位數字。請重新輸入。',400);return;
     }
     S.pin=t;save();
-    sheet('register',{name:S.name});
+    sheet('register',{name:S.name,identity:S.identity,childCount:S.childCount});
     say('isis',`${S.name}⋯⋯好。你的祭司印記已刻入結界。\n\n⚠️ 請記住你的名字和 4 位數密碼（${S.pin}），離開後可用它恢復進度。\n\n輸入「提示」獲得託特的指引。輸入「進度」查看碎片。\n\n出發。`,700).then(()=>{
       if(window._pendingCheckin&&!S.completed[window._pendingCheckin]){autoCheckin(window._pendingCheckin)}else{hub()}
     });return;
@@ -1614,12 +2302,15 @@ function handleSend(){
   if(['進度','progress'].includes(lo))showProgress();
   else if(['幫助','help'].includes(lo))say('isis','點選按鈕選擇站點 | 「進度」查看狀態 | 回答時「提示」獲助 | 「重置」清除進度',400).then(()=>hub());
   else if(lo==='重置'||lo==='reset'){localStorage.removeItem('osiris_v3');location.reload()}
-  else say('isis','祭司，使用按鈕選擇目的地，或輸入「幫助」。',300);
+  else if(lo==='託特的秘密'||lo==='thoth secret')say('thoth','𓁟 你找到了。\n\n這是很少有人知道的事——在歐西里斯被殺的那天晚上，賽特其實猶豫了。\n\n他站在歐西里斯的床前整整一個小時。手裡握著武器，但遲遲沒有動手。\n\n最後讓他下定決心的，不是嫉妒——是恐懼。他害怕如果不動手，自己永遠只是「歐西里斯的弟弟」。\n\n所有的邪惡，最深處都是恐懼。記住這件事。它會讓你成為更好的人。').then(()=>hub());
+  else if(lo==='荷魯斯'||lo==='horus')say('isis','⋯⋯！\n\n你怎麼知道這個名字？\n\n荷魯斯⋯⋯是歐西里斯復活後，我們將會擁有的第二個孩子。他會成為天空之神，替父親向賽特復仇。\n\n但那是未來的事。現在——先讓他的父親回來。\n\n你知道的比我預想的多，祭司。').then(()=>hub());
+  else say('isis','祭司，使用按鈕選擇目的地，或輸入「幫助」。');
 }
 
 inp.addEventListener('keydown',e=>{if(e.key==='Enter')handleSend()});
 
 // ── Init ──
+initEasterEggs();
 startGame();
 </script>
 </body>
