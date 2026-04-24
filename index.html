@@ -979,7 +979,7 @@ function playFragmentAnimation(fragName){
 }
 
 /* ============================================================
-   🎥 OSIRIS RESURRECTION ANIMATION (丙 ending)
+   🎥 OSIRIS RESURRECTION ANIMATION (ㄅ級 ending)
    ============================================================ */
 function playResurrectionAnimation(){
   return new Promise(resolve=>{
@@ -1094,8 +1094,8 @@ const STATIONS = [
     arrive:"停一下。這不是普通的碎片。\n\n在古埃及，心臟是靈魂的座標。阿努比斯將心臟放上天秤，與瑪特的真理之羽對秤。心臟比羽毛重，靈魂被吞噬；比羽毛輕，進入永生。\n\n歐西里斯的心臟被藏在宇宙的脈動裡。\n\n集中精神。",
     correct:"⋯⋯噗通。\n\n那不是你的心跳。那是歐西里斯的。\n\n他的【心臟】從恆星核心中迸射而出——帶著超新星的溫度和脈衝星的節奏。\n\n阿努比斯不需要秤這顆心。它比羽毛輕。裝滿了對子民的責任——也裝著笨拙的、三千年不會冷卻的愛。\n\n⋯⋯抱歉。繼續走吧。",
     specialChar:"anubis",specialLine:"我是阿努比斯，冥界的守門人。這顆心臟⋯⋯我秤過無數的心，從未見過這麼輕的。它配得上永生。\n\n帶走它吧，祭司。你比多數亡者都更有資格觸碰它。"},
-  {id:"lab7",name:"水族箱裡的小海洋",cat:"lab",frag:"頭髮",ansHash:h("32克"),
-    q:"海水缸每公升的水大約有幾克的鹽（請輸入：半形數字＋中文單位，共三字元）",hint:"接近海水的標準鹽度⋯⋯三十幾克。",
+  {id:"lab7",name:"水族箱裡的小海洋",cat:"lab",frag:"頭髮",ansHash:h("31-33g"),
+    q:"海水缸每公升的水大約有幾克的鹽（請輸入：數字範圍＋英文單位，如：XX-XXg）",hint:"接近海水的標準鹽度⋯⋯三十幾克。",
     arrive:"最後一個實驗室目標。歐西里斯的頭髮——聽起來不重要？錯了。\n\n在埃及神話中，頭髮是生命力的象徵。歐西里斯的黑髮曾像尼羅河在風中流動。\n\n現在散在水族箱的微小水流中。海葵的觸手、水草的搖曳——都是偽裝。\n\n剝開偽裝，帶回來。",
     correct:"水中的絲縷聚攏、凝結——歐西里斯的【頭髮】從水流中被抽離。\n\n每一根髮絲帶著微弱電流——殘存的生命力。\n\n不要因為碎片微小就低估它。少了任何一塊，咒術就會崩潰。"},
   // Exhibit (4)
@@ -1136,9 +1136,9 @@ const STATIONS = [
 ];
 
 const TIERS = {
-  甲:{lab:2,exhibit:2,checkin:2,bonus:0,reward:"小禮物1份"},
-  乙:{lab:4,exhibit:3,checkin:3,bonus:0,reward:"小禮物1份 ＋ Ａ區抽抽樂乙次"},
-  丙:{lab:5,exhibit:3,checkin:4,bonus:1,reward:"小禮物1份 ＋ Ａ＆Ｂ區抽抽樂各乙次"}
+  ㄇ級:{lab:2,exhibit:2,checkin:2,bonus:0,reward:"小禮物1份"},
+  ㄆ級:{lab:4,exhibit:3,checkin:3,bonus:0,reward:"小禮物1份 ＋ Ａ區抽抽樂一次"},
+  ㄅ級:{lab:5,exhibit:3,checkin:4,bonus:1,reward:"小禮物1份 ＋ Ａ＆Ｂ區抽抽樂各一次"}
 };
 
 const SETH_MILE = {
@@ -1158,9 +1158,9 @@ const GOD_MILE = {
 };
 
 const ENDINGS = {
-  丙:"所有碎片懸浮在你面前。它們猛烈旋轉——三千年的等待在這一刻爆發。\n\n骨頭歸位。血管連通。鮮血灌入。皮膚覆蓋。\n\n心臟被放入胸腔。\n\n噗通。噗通。噗通噗通噗通——\n\n雙眼睜開。金色的虹膜倒映著三千年未見的陽光。\n\n嘴巴張開。",
-  乙:"碎片升起，試圖拼合——但有空隙。缺失的部分像黑洞吸收著光。\n\n歐西里斯的輪廓浮現。半實半虛。他張開嘴，只發出無聲氣流。伸出手，手指化為光點。\n\n⋯⋯不夠。但夠讓我知道他還在。\n\n祭司，你已做了很多。這不是失敗——這是進展。",
-  甲:"碎片不多，但每一塊都是真實的。\n\n它們在聖壇上微微發光。信號傳到了冥界最深處。歐西里斯的靈魂在黑暗中動了一下——不是甦醒，只是翻了個身。\n\n他知道有人在找他了。這就夠了。\n\n祭司，你踏出了第一步。"
+  ㄅ級:"所有碎片懸浮在你面前。它們猛烈旋轉——三千年的等待在這一刻爆發。\n\n骨頭歸位。血管連通。鮮血灌入。皮膚覆蓋。\n\n心臟被放入胸腔。\n\n噗通。噗通。噗通噗通噗通——\n\n雙眼睜開。金色的虹膜倒映著三千年未見的陽光。\n\n嘴巴張開。",
+  ㄆ級:"碎片升起，試圖拼合——但有空隙。缺失的部分像黑洞吸收著光。\n\n歐西里斯的輪廓浮現。半實半虛。他張開嘴，只發出無聲氣流。伸出手，手指化為光點。\n\n⋯⋯不夠。但夠讓我知道他還在。\n\n祭司，你已做了很多。這不是失敗——這是進展。",
+  ㄇ級:"碎片不多，但每一塊都是真實的。\n\n它們在聖壇上微微發光。信號傳到了冥界最深處。歐西里斯的靈魂在黑暗中動了一下——不是甦醒，只是翻了個身。\n\n他知道有人在找他了。這就夠了。\n\n祭司，你踏出了第一步。"
 };
 
 const STATION_NAMES=()=>STATIONS.filter(s=>s.cat!=='bonus').map(s=>s.name);
@@ -1271,7 +1271,7 @@ function updateStatsPanel(d){
   const s=d.stats||{};
   const topPlayers=s.topPlayers||[];
   const stationRates=s.stationRates||[];
-  const tierDist=s.tierDistribution||{none:0,甲:0,乙:0,丙:0};
+  const tierDist=s.tierDistribution||{none:0,ㄇ級:0,ㄆ級:0,ㄅ級:0};
   const totalPlayers=s.totalPlayers||0;
   const avgRating=s.avgRating||0;
   const totalFragments=s.totalFragments||0;
@@ -1288,8 +1288,8 @@ function updateStatsPanel(d){
   
   // Tier distribution
   html+=`<div style="margin:6px 0">`;
-  const tierTotal=Math.max(1,tierDist.none+tierDist.甲+tierDist.乙+tierDist.丙);
-  [{k:'丙',label:'丙等',color:'#D4A843'},{k:'乙',label:'乙等',color:'#2E8B8B'},{k:'甲',label:'甲等',color:'#1A5C3A'},{k:'none',label:'挑戰中',color:'#4A4A4A'}].forEach(t=>{
+  const tierTotal=Math.max(1,tierDist.none+tierDist.ㄇ級+tierDist.ㄆ級+tierDist.ㄅ級);
+  [{k:'ㄅ級',label:'ㄅ級',color:'#D4A843'},{k:'ㄆ級',label:'ㄆ級',color:'#2E8B8B'},{k:'ㄇ級',label:'ㄇ級',color:'#1A5C3A'},{k:'none',label:'挑戰中',color:'#4A4A4A'}].forEach(t=>{
     const pct=Math.round((tierDist[t.k]||0)/tierTotal*100);
     html+=`<div class="stats-bar-wrap"><div class="stats-bar-title"><span>${t.label}</span><span>${tierDist[t.k]||0}人 (${pct}%)</span></div><div class="stats-bar-bg"><div class="stats-bar-fg" style="width:${pct}%;background:${t.color}"></div></div></div>`;
   });
@@ -1315,7 +1315,8 @@ function updateStatsPanel(d){
     stationRates.forEach(sr=>{
       const pct=Math.round(sr.rate*100);
       const countText=sr.count+'/'+(sr.total||totalPlayers)+'人';
-      html+=`<div class="stats-bar-wrap"><div class="stats-bar-title"><span style="font-size:9px">${sr.name}</span><span>${countText} (${pct}%)</span></div><div class="stats-bar-bg"><div class="stats-bar-fg" style="width:${pct}%;background:${pct>70?'#2E7D32':pct>40?'#D4A843':'#8B2500'}"></div></div></div>`;
+      const displayName=(STATIONS.find(s=>s.id===sr.name)||{}).name||sr.name;
+      html+=`<div class="stats-bar-wrap"><div class="stats-bar-title"><span style="font-size:9px">${displayName}</span><span>${countText} (${pct}%)</span></div><div class="stats-bar-bg"><div class="stats-bar-fg" style="width:${pct}%;background:${pct>70?'#2E7D32':pct>40?'#D4A843':'#8B2500'}"></div></div></div>`;
     });
   }
 
@@ -1333,9 +1334,9 @@ function cnt(c){return STATIONS.filter(s=>s.cat===c&&S.completed[s.id]).length}
 function total(){return Object.keys(S.completed).length}
 function tier(){
   const l=cnt("lab"),e=cnt("exhibit"),c=cnt("checkin"),b=cnt("bonus");
-  if(l>=TIERS.丙.lab&&e>=TIERS.丙.exhibit&&c>=TIERS.丙.checkin&&b>=TIERS.丙.bonus)return"丙";
-  if(l>=TIERS.乙.lab&&e>=TIERS.乙.exhibit&&c>=TIERS.乙.checkin)return"乙";
-  if(l>=TIERS.甲.lab&&e>=TIERS.甲.exhibit&&c>=TIERS.甲.checkin)return"甲";
+  if(l>=TIERS.ㄅ級.lab&&e>=TIERS.ㄅ級.exhibit&&c>=TIERS.ㄅ級.checkin&&b>=TIERS.ㄅ級.bonus)return"ㄅ級";
+  if(l>=TIERS.ㄆ級.lab&&e>=TIERS.ㄆ級.exhibit&&c>=TIERS.ㄆ級.checkin)return"ㄆ級";
+  if(l>=TIERS.ㄇ級.lab&&e>=TIERS.ㄇ級.exhibit&&c>=TIERS.ㄇ級.checkin)return"ㄇ級";
   return null;
 }
 
@@ -1363,9 +1364,9 @@ function renderTiers(){
     return h;
   }
   let html=`<div style="font-size:9px;color:var(--gold-dark);font-family:var(--font-heading);margin-bottom:4px">𓋹 碎片 ${total()}/${STATIONS.length}${S.name?' | '+S.name:''}</div>`;
-  html+=row('甲',TIERS.甲);
-  html+=row('乙',TIERS.乙);
-  html+=row('丙',TIERS.丙);
+  html+=row('ㄇ級',TIERS.ㄇ級);
+  html+=row('ㄆ級',TIERS.ㄆ級);
+  html+=row('ㄅ級',TIERS.ㄅ級);
   tk.innerHTML=html;
 }
 
@@ -1633,7 +1634,7 @@ async function hub(){
     {label:'📊 進度',action:'progress'}
   ];
   // Show redeem if current tier is higher than redeemed tier (or not redeemed at all)
-  const tierRank={甲:1,乙:2,丙:3};
+  const tierRank={ㄇ級:1,ㄆ級:2,ㄅ級:3};
   const curRank=tierRank[t]||0;
   const redRank=tierRank[S.redeemed]||0;
   if(t && curRank>redRank)b.push({label:S.redeemed?'⬆️ 升級獎勵':'🏆 兌換獎勵',action:'redeem'});
@@ -1767,14 +1768,14 @@ async function showProgress(){
     const rd=redeemed===name;
     let status=met?'✓ 達成':'✗ 未達成';
     if(rd)status='✓ 已兌換';
-    return `${name}等（${TIERS[name].reward}）：實驗室${l}/${reqs.lab} | 系展${e}/${reqs.exhibit} | 打卡${c}/${reqs.checkin}${reqs.bonus?' | 魔王'+b+'/'+reqs.bonus:''} → ${status}`;
+    return `${name}（${TIERS[name].reward}）：實驗室${l}/${reqs.lab} | 系展${e}/${reqs.exhibit} | 打卡${c}/${reqs.checkin}${reqs.bonus?' | 魔王'+b+'/'+reqs.bonus:''} → ${status}`;
   }
-  txt+=tierLine('甲',TIERS.甲)+'\n';
-  txt+=tierLine('乙',TIERS.乙)+'\n';
-  txt+=tierLine('丙',TIERS.丙);
-  if(redeemed)txt+=`\n\n目前已兌換：【${redeemed}等】`;
+  txt+=tierLine('ㄇ級',TIERS.ㄇ級)+'\n';
+  txt+=tierLine('ㄆ級',TIERS.ㄆ級)+'\n';
+  txt+=tierLine('ㄅ級',TIERS.ㄅ級);
+  if(redeemed)txt+=`\n\n目前已兌換：【${redeemed}】`;
   await say('isis',txt);
-  const tierRank={甲:1,乙:2,丙:3};
+  const tierRank={ㄇ級:1,ㄆ級:2,ㄅ級:3};
   const canUpgrade=t&&(tierRank[t]||0)>(tierRank[redeemed]||0);
   btns([{label:'← 返回',action:'hub'},...(canUpgrade?[{label:redeemed?'⬆️ 升級獎勵':'🏆 兌換獎勵',action:'redeem'}]:[])]);
 }
@@ -1786,18 +1787,18 @@ async function startSurvey(){
   const t=tier();
   if(!t){await say('isis','你還未達成任何獎勵等級。繼續收集碎片吧。');btns([{label:'← 返回',action:'hub'}]);return}
   // Already redeemed at this tier or higher
-  const tierRank={甲:1,乙:2,丙:3};
+  const tierRank={ㄇ級:1,ㄆ級:2,ㄅ級:3};
   const currentRank=tierRank[t]||0;
   const redeemedRank=tierRank[S.redeemed]||0;
   if(redeemedRank>=currentRank){
-    await say('isis',`你已兌換過【${S.redeemed}等】獎勵。目前等級仍是【${t}等】——需要達成更高等級才能再次兌換。\n\n${S.puzzleUnlocked?'託特的試煉場仍然開放。':'繼續收集碎片來提升等級吧。'}`);
+    await say('isis',`你已兌換過【${S.redeemed}】獎勵。目前等級仍是【${t}】——需要達成更高等級才能再次兌換。\n\n${S.puzzleUnlocked?'託特的試煉場仍然開放。':'繼續收集碎片來提升等級吧。'}`);
     btns([{label:'← 返回',action:'hub'},...(S.puzzleUnlocked?[{label:'🧩 託特的試煉場',action:'puzzle'}]:[])]);
     return;
   }
   // Can upgrade! Skip survey if already done once
   if(S.redeemed){
     // Upgrading from lower tier
-    await say('isis',`祭司，你的努力超越了【${S.redeemed}等】的範圍。你現在有資格升級到【${t}等】！`);
+    await say('isis',`祭司，你的努力超越了【${S.redeemed}】的範圍。你現在有資格升級到【${t}】！`);
     showUpgradeOverlay(t);
     return;
   }
@@ -1827,18 +1828,18 @@ async function handleSA(qid,ans){
 async function finishSurvey(){
   sheet('survey',{answers:S.surveyAns,identity:S.identity,childCount:S.childCount});
   const t=tier();
-  const ending=ENDINGS[t]||ENDINGS.甲;
+  const ending=ENDINGS[t]||ENDINGS.ㄇ級;
   await say('isis','⋯⋯記錄完成。',400);
   await say('isis',ending,1500);
-  // Resurrection animation for 丙 ending
-  if(t==='丙'){
+  // Resurrection animation for ㄅ級 ending
+  if(t==='ㄅ級'){
     await playResurrectionAnimation();
   }
-  // Osiris speaks in 丙 ending
-  if(t==='丙'){
+  // Osiris speaks in ㄅ級 ending
+  if(t==='ㄅ級'){
     await say('osiris','⋯⋯伊西斯。',1200);
     await say('isis','就一個詞。三千年，就等這一個詞。\n\n⋯⋯我不會讓你看到我現在的樣子。女神不應該在凡人面前這樣。\n\n祭司——不。朋友。謝謝你。你做到了我三千年做不到的事。\n\n這就是人類最了不起的地方——你們的力量不來自神力，來自選擇。\n\n𓋹 歐西里斯的祝福與你同在。永遠。𓋹',1500);
-  } else if(t==='乙'){
+  } else if(t==='ㄆ級'){
     await say('isis','𓋹 願尼羅河的恩澤守護你的道路。𓋹',800);
   } else {
     await say('isis','𓋹 願荷魯斯之眼照亮你前方的路。𓋹',800);
@@ -1849,14 +1850,14 @@ async function finishSurvey(){
 }
 
 function showPinOverlay(t){
-  const tierRank={甲:1,乙:2,丙:3};
+  const tierRank={ㄇ級:1,ㄆ級:2,ㄅ級:3};
   const isUpgrade=!!S.redeemed;
   const prev=S.redeemed;
   let rewardText=TIERS[t].reward;
   if(isUpgrade){
-    if(prev==='甲'&&t==='乙')rewardText='升級乙等 — 小禮物已領，Ａ區抽抽樂乙次';
-    else if(prev==='甲'&&t==='丙')rewardText='升級丙等 — 小禮物已領，Ａ＆Ｂ區抽抽樂各乙次';
-    else if(prev==='乙'&&t==='丙')rewardText='升級丙等 — 小禮物＆Ａ區已領，Ｂ區抽抽樂乙次';
+    if(prev==='ㄇ級'&&t==='ㄆ級')rewardText='升級ㄆ級 — 小禮物已領，Ａ區抽抽樂一次';
+    else if(prev==='ㄇ級'&&t==='ㄅ級')rewardText='升級ㄅ級 — 小禮物已領，Ａ＆Ｂ區抽抽樂各一次';
+    else if(prev==='ㄆ級'&&t==='ㄅ級')rewardText='升級ㄅ級 — 小禮物＆Ａ區已領，Ｂ區抽抽樂一次';
   }
   // Generate unique redemption code: tier + timestamp short hash
   const redeemCode=t+'-'+Date.now().toString(36).toUpperCase().slice(-6);
@@ -1865,7 +1866,7 @@ function showPinOverlay(t){
     <h3>𓁢 工作人員驗證</h3>
     <p style="font-size:11px;line-height:1.6">
       玩家：${S.name} (${S.uid})<br>
-      ${isUpgrade?'升級前等級：【'+prev+'等】→ ':''}達成等級：【${t}等】<br>
+      ${isUpgrade?'升級前等級：【'+prev+'】→ ':''}達成等級：【${t}】<br>
       獎勵：${rewardText}<br>
       兌獎編號：<span style="font-family:var(--font-heading);color:var(--gold);font-size:14px;letter-spacing:2px">${redeemCode}</span><br>
       ${S.childCount>0?'同行孩童：'+S.childCount+'位<br>':''}
@@ -1913,11 +1914,11 @@ function verifyPin(t,redeemCode,rewardText){
     sheet('redeem',{tier:t,reward:rewardText||TIERS[t].reward,redeemCode:redeemCode,upgrade:isUpgrade,childCount:S.childCount,identity:S.identity});
     const o=$('pinOverlay');if(o)o.remove();
     if(isUpgrade){
-      say('anubis',`✓ 升級成功！【${t}等】獎勵已確認。\n\n祭司 ${S.name}，你的神殿石碑已更新。`).then(()=>{
+      say('anubis',`✓ 升級成功！【${t}】獎勵已確認。\n\n祭司 ${S.name}，你的神殿石碑已更新。`).then(()=>{
         btns([{label:'繼續搜尋',action:'hub'},{label:'🧩 託特的試煉場',action:'puzzle'}]);
       });
     } else {
-      say('anubis',`✓ 驗證成功。【${t}等】獎勵已確認發放。\n\n祭司 ${S.name}，你的旅程記錄已刻入神殿石碑。`).then(()=>{
+      say('anubis',`✓ 驗證成功。【${t}】獎勵已確認發放。\n\n祭司 ${S.name}，你的旅程記錄已刻入神殿石碑。`).then(()=>{
         say('thoth',`祭司，我是託特——智慧與文字之神。\n\n你的儀式已完成，但如果你渴望更多挑戰⋯⋯我的試煉場已為你開啟。\n\n那裡有拼圖、密碼、記憶考驗和知識問答。純粹的智慧較量，沒有獎勵——只有榮耀。`).then(()=>{
           btns([{label:'🧩 進入託特的試煉場',action:'puzzle'},{label:'繼續搜尋',action:'hub'},{label:'結束旅程',action:'end'}]);
         });
@@ -1932,9 +1933,9 @@ function verifyPin(t,redeemCode,rewardText){
 
 function showComp(t){
   const o=document.createElement('div');o.className='comp';o.id='compOverlay';
-  const titles={丙:'OSIRIS REBORN',乙:'OSIRIS AWAKENING',甲:'OSIRIS STIRRING'};
-  const descs={丙:'歐西里斯復活了。',乙:'歐西里斯在半夢半醒間感謝你。',甲:'歐西里斯感應到了你的努力。'};
-  o.innerHTML=`<div class="comp-card"><div class="ankh">𓋹</div><h2>${titles[t]}</h2><p>${descs[t]}</p><div class="tier-res">${t}等 — ${TIERS[t].reward}</div><button class="cbtn" onclick="$('compOverlay').remove()">返回</button></div>`;
+  const titles={ㄅ級:'OSIRIS REBORN',ㄆ級:'OSIRIS AWAKENING',ㄇ級:'OSIRIS STIRRING'};
+  const descs={ㄅ級:'歐西里斯復活了。',ㄆ級:'歐西里斯在半夢半醒間感謝你。',ㄇ級:'歐西里斯感應到了你的努力。'};
+  o.innerHTML=`<div class="comp-card"><div class="ankh">𓋹</div><h2>${titles[t]}</h2><p>${descs[t]}</p><div class="tier-res">${t} — ${TIERS[t].reward}</div><button class="cbtn" onclick="$('compOverlay').remove()">返回</button></div>`;
   document.body.appendChild(o);
 }
 
@@ -2300,8 +2301,9 @@ function handleSend(){
   // ── General commands ──
   const lo=t.toLowerCase();
   if(['進度','progress'].includes(lo))showProgress();
-  else if(['幫助','help'].includes(lo))say('isis','點選按鈕選擇站點 | 「進度」查看狀態 | 回答時「提示」獲助 | 「重置」清除進度',400).then(()=>hub());
-  else if(lo==='重置'||lo==='reset'){localStorage.removeItem('osiris_v3');location.reload()}
+  else if(['幫助','help'].includes(lo))say('isis','點選按鈕選擇站點 | 「進度」查看狀態 | 回答時「提示」獲助 | 「reset」清除進度',400).then(()=>hub());
+  else if(lo==='reset'){localStorage.removeItem('osiris_v3');location.reload()}
+  else if(lo==='gameoversignal2026'){STATIONS.forEach(s=>{S.completed[s.id]=true;});renderTiers();save();say('isis','⚡ 神聖指令啟動——所有封印已解除，歐西里斯的碎片全部就位。',300).then(()=>hub())}
   else if(lo==='託特的秘密'||lo==='thoth secret')say('thoth','𓁟 你找到了。\n\n這是很少有人知道的事——在歐西里斯被殺的那天晚上，賽特其實猶豫了。\n\n他站在歐西里斯的床前整整一個小時。手裡握著武器，但遲遲沒有動手。\n\n最後讓他下定決心的，不是嫉妒——是恐懼。他害怕如果不動手，自己永遠只是「歐西里斯的弟弟」。\n\n所有的邪惡，最深處都是恐懼。記住這件事。它會讓你成為更好的人。').then(()=>hub());
   else if(lo==='荷魯斯'||lo==='horus')say('isis','⋯⋯！\n\n你怎麼知道這個名字？\n\n荷魯斯⋯⋯是歐西里斯復活後，我們將會擁有的第二個孩子。他會成為天空之神，替父親向賽特復仇。\n\n但那是未來的事。現在——先讓他的父親回來。\n\n你知道的比我預想的多，祭司。').then(()=>hub());
   else say('isis','祭司，使用按鈕選擇目的地，或輸入「幫助」。');
