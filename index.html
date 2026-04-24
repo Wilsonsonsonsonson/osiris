@@ -2273,7 +2273,7 @@ async function btnClick(b){
     case 'progress':msg('player','查看進度');showProgress();break;
     case 'redeem':msg('player','兌換獎勵');startSurvey();break;
     case 'puzzle':openPuzzles();break;
-    case 'end':msg('player','結束旅程');await say('isis','願你在結界之外的世界，也能記住今天的選擇。\n\n𓋹 再見，祭司。𓋹');await say('anubis','願冥界的安寧守護你的歸途。');S.phase='ended';btns([{label:'🔄 重新開始',action:'restart'}]);break;
+    case 'end':msg('player','結束旅程');await say('isis','願你在結界之外的世界，也能記住今天的選擇。\n\n𓋹 再見，祭司。𓋹');await say('anubis','願冥界的安寧守護你的歸途。');S.phase='ended';btns([]);break;
     case 'restart':location.reload();break;
   }
 }
