@@ -1275,7 +1275,19 @@ function renderStatsPanel(){
   startStatsPolling();
 }
 
+function applyRemoteConfig(d){
+  // 讀取後端廣播的時間設定（由工作人員寫入）
+  const cfg=d.config||{};
+  const ro=_parseHHMM(cfg.openTime,null);
+  const rc=_parseHHMM(cfg.closeTime,null);
+  let changed=false;
+  if(ro&&(ro.h!==GAME_OPEN.h||ro.m!==GAME_OPEN.m)){GAME_OPEN=ro;changed=true}
+  if(rc&&(rc.h!==GAME_CLOSE.h||rc.m!==GAME_CLOSE.m)){GAME_CLOSE=rc;_warnSent=false;changed=true}
+  if(changed)updateGameTimer();
+}
+
 function updateStatsPanel(d){
+  applyRemoteConfig(d);
   const panel=document.getElementById('liveStats');
   if(!panel)return;
   const s=d.stats||{};
@@ -2315,11 +2327,19 @@ function handleSend(){
   else if(lo==='reset'){localStorage.removeItem('osiris_v3');location.reload()}
   else if(_staffMode&&/^open:\d{3,4}$/.test(lo)){
     const t=_parseHHMM(lo.split(':')[1],null);
-    if(t){GAME_OPEN=t;_warnSent=false;updateGameTimer();say('isis',`✅ 開始時間已更新為 ${String(t.h).padStart(2,'0')}:${String(t.m).padStart(2,'0')}`,200)}
+    if(t){
+      GAME_OPEN=t;_warnSent=false;updateGameTimer();
+      sheet('config',{openTime:lo.split(':')[1],closeTime:String(GAME_CLOSE.h).padStart(2,'0')+String(GAME_CLOSE.m).padStart(2,'0')});
+      say('isis',`✅ 開始時間已更新為 ${String(t.h).padStart(2,'0')}:${String(t.m).padStart(2,'0')}（廣播中⋯⋯）`,200);
+    }
   }
   else if(_staffMode&&/^close:\d{3,4}$/.test(lo)){
     const t=_parseHHMM(lo.split(':')[1],null);
-    if(t){GAME_CLOSE=t;_warnSent=false;updateGameTimer();say('isis',`✅ 結束時間已更新為 ${String(t.h).padStart(2,'0')}:${String(t.m).padStart(2,'0')}`,200)}
+    if(t){
+      GAME_CLOSE=t;_warnSent=false;updateGameTimer();
+      sheet('config',{openTime:String(GAME_OPEN.h).padStart(2,'0')+String(GAME_OPEN.m).padStart(2,'0'),closeTime:lo.split(':')[1]});
+      say('isis',`✅ 結束時間已更新為 ${String(t.h).padStart(2,'0')}:${String(t.m).padStart(2,'0')}（廣播中⋯⋯）`,200);
+    }
   }
   else if(lo==='gameoversignal2026'){STATIONS.forEach(s=>{S.completed[s.id]=true;});renderTiers();save();say('isis','⚡ 神聖指令啟動——所有封印已解除，歐西里斯的碎片全部就位。',300).then(()=>hub())}
   else if(lo==='託特的秘密'||lo==='thoth secret')say('thoth','𓁟 你找到了。\n\n這是很少有人知道的事——在歐西里斯被殺的那天晚上，賽特其實猶豫了。\n\n他站在歐西里斯的床前整整一個小時。手裡握著武器，但遲遲沒有動手。\n\n最後讓他下定決心的，不是嫉妒——是恐懼。他害怕如果不動手，自己永遠只是「歐西里斯的弟弟」。\n\n所有的邪惡，最深處都是恐懼。記住這件事。它會讓你成為更好的人。').then(()=>hub());
